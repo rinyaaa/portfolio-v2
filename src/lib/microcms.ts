@@ -90,10 +90,14 @@ export function toPost(raw: MicroCMSPost): Post {
   };
 }
 
+export function sortPostsByKeyDesc(posts: Post[]): Post[] {
+  return [...posts].sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+}
+
 /**
  * 公開記事を取得し、sortKey 降順（新しいものが上）に並べて返す。
  */
 export async function getPublishedPosts(): Promise<Post[]> {
   const posts = await fetchAllMicroCMSPosts();
-  return posts.map(toPost).sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+  return sortPostsByKeyDesc(posts.map(toPost));
 }
