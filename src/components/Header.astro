@@ -1,0 +1,32 @@
+---
+import styles from "./Header.module.scss";
+
+const path = Astro.url.pathname;
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "about" },
+  { href: "/post", label: "Post" },
+];
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+---
+
+<header class={styles.header}>
+  <a href="/" class={styles.logo} aria-label="Home">
+    <img src="/avatar.svg" alt="nenex_Icon" width="56" height="56" />
+  </a>
+
+  <nav class={styles.nav}>
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          class={`${styles.link} ${isActive(l.href) ? styles.active : ""}`}
+          aria-current={isActive(l.href) ? "page" : undefined}
+        >
+          {l.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>

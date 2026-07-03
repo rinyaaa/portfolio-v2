@@ -1,0 +1,40 @@
+---
+import styles from "./Profile.module.scss";
+
+const info = [
+  { label: "大学", value: "愛知工業大学" },
+  { label: "所属", value: "シス研・梶研究室 / NxTEND / FORGERS" },
+  { label: "開発", value: "Webフルスタック開発" },
+  { label: "趣味", value: "旅行 / 絶叫系 / イベント運営 / 二郎" },
+  { label: "一言", value: "ポートフォリオ制作頑張ります！" },
+];
+---
+
+<section class={styles.section}>
+  <h2 class="section-title">My Profile</h2>
+
+  <div class={styles.card}>
+    <div class={styles.imageWrap}>
+      <img
+        src="/avatar.svg"
+        alt="nenex のイラスト"
+        width="260"
+        height="260"
+      />
+    </div>
+
+    <div class={styles.body}>
+      <h3 class={styles.name}>石丸凜弥（nenex）</h3>
+      <dl class={styles.info}>
+        {
+          info.map((item) => (
+            <>
+              <dt class={styles.label}>{item.label}</dt>
+              <dd class={styles.value}>{item.value}</dd>
+            </>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
