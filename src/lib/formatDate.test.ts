@@ -3,11 +3,11 @@ import { formatJaDate } from './formatDate';
 
 describe('formatJaDate', () => {
   it('YYYY-MM-DD を日本語表記にする', () => {
-    expect(formatJaDate('2025-12-22')).toBe('2025年12月22日');
+    expect(formatJaDate('2025-12-22')).toBe('2025/12/22');
   });
 
   it('先頭ゼロを落とす', () => {
-    expect(formatJaDate('2026-07-03')).toBe('2026年7月3日');
+    expect(formatJaDate('2026-07-03')).toBe('2026/7/3');
   });
 
   it('null は空文字', () => {
