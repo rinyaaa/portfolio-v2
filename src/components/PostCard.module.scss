@@ -1,0 +1,70 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.thumb {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--pink-soft);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.noImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+}
+
+.body {
+  padding-left: 16px;
+  padding-bottom: 8px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--heading);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.calendarIcon {
+  flex-shrink: 0;
+  font-size: 1.05em;
+  /* 光学的に少し上に上げてベースラインに合わせる */
+  transform: translateY(-1px);
+}
