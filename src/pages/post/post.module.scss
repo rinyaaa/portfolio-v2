@@ -4,28 +4,7 @@
   padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
 }
 
-.grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: clamp(20px, 3vw, 32px);
-}
-
-.item {
-  display: flex;
-  background: var(--white);
-  border-radius: var(--radius);
-}
-
 .empty {
   text-align: center;
   color: var(--text-muted);
-}
-
-@media (max-width: 540px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
 }
