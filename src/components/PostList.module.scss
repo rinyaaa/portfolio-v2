@@ -15,6 +15,13 @@
   display: flex;
   background: var(--white);
   border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.item > :global(a) {
+  flex: 1;
+  /* flex 子が中身（画像実寸）で膨らんでセルをはみ出すのを防ぐ */
+  min-width: 0;
 }
 
 .empty {
