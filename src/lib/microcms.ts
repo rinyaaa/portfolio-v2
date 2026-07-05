@@ -14,8 +14,11 @@ type MicroCMSConfig = {
  * 未設定なら早期にエラーにして、原因を分かりやすくする。
  */
 function getConfig(): MicroCMSConfig {
-  const serviceDomain = import.meta.env.MICROCMS_SERVICE_DOMAIN;
-  const apiKey = import.meta.env.MICROCMS_API_KEY;
+  // ローカルは .env（import.meta.env）、Cloudflare Pages は OS 環境変数（process.env）から渡る。
+  // 環境差で取りこぼさないよう両方を見る。
+  const serviceDomain =
+    import.meta.env.MICROCMS_SERVICE_DOMAIN ?? process.env.MICROCMS_SERVICE_DOMAIN;
+  const apiKey = import.meta.env.MICROCMS_API_KEY ?? process.env.MICROCMS_API_KEY;
   if (!serviceDomain || !apiKey) {
     throw new Error(
       'MICROCMS_SERVICE_DOMAIN / MICROCMS_API_KEY が未設定です。ローカルは .env、Cloudflare Pages は環境変数を確認してください。',
