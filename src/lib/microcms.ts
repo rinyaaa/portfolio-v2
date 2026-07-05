@@ -82,7 +82,7 @@ export function toPost(raw: MicroCMSPost): Post {
     date: raw.date ? toJstDateString(raw.date) : null,
     genres: (raw.genres ?? []).map((g) => g.name),
     bodyHtml: raw.content,
-    eyecatch: raw.eyecatch ?? null,
+    eyecatch: raw.eyecatch,
     createdAt: raw.createdAt,
     updatedAt: raw.updatedAt,
     publishedAt,

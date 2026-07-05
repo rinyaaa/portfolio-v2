@@ -1,0 +1,40 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: clamp(20px, 3vw, 28px);
+}
+
+.chip {
+  appearance: none;
+  border: 1.5px solid var(--pink-soft);
+  background: var(--white);
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.chip[data-hovered] {
+  border-color: var(--pink);
+  color: var(--pink-strong);
+}
+
+.chip[data-selected] {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: var(--white);
+}
+
+.chip[data-focus-visible] {
+  outline: 2px solid var(--pink-strong);
+  outline-offset: 2px;
+}
