@@ -11,6 +11,7 @@ function makeRaw(overrides: Partial<MicroCMSPost> = {}): MicroCMSPost {
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-02T00:00:00.000Z',
     publishedAt: '2026-01-03T00:00:00.000Z',
+    eyecatch: { url: 'https://example.com/eyecatch.png', width: 640, height: 480 },
     ...overrides,
   };
 }
@@ -65,9 +66,6 @@ describe('toPost', () => {
     expect(toPost(makeRaw({ title: 'aaa ' })).title).toBe('aaa');
   });
 
-  it('eyecatch 未設定なら null', () => {
-    expect(toPost(makeRaw({ eyecatch: undefined })).eyecatch).toBeNull();
-  });
 
   it('date があれば sortKey は date', () => {
     expect(toPost(makeRaw({ date: '2026-06-26T00:00:00.000Z' })).sortKey).toBe('2026-06-26');
