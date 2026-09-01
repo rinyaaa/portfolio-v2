@@ -17,6 +17,11 @@
 #                          派生プロジェクトでは下のデフォルト値を自リポジトリに書き換えてもよい
 set -euo pipefail
 
+# このリポジトリ用のデフォルト値。~/.night-run-secrets.env は複数プロジェクトで共有される
+# ファイルなので、プロジェクト固有のこの値はそちらに書かず、ここで固定する
+# (環境変数で明示的に上書きされていればそちらを優先する)。
+NIGHT_RUN_REPO_URL="${NIGHT_RUN_REPO_URL:-https://github.com/rinyaaa/portfolio-v2.git}"
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMAGE_NAME="night-runner"
 CONTAINER_NAME="night-runner"
