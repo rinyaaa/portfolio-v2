@@ -1,0 +1,33 @@
+.section {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
+}
+
+.list {
+  display: flex;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 28px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--pink-strong);
+  font-size: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.link:hover {
+  background: var(--pink);
+  color: var(--white);
+}
