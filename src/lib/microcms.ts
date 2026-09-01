@@ -104,3 +104,8 @@ export async function getPublishedPosts(): Promise<Post[]> {
   const posts = await fetchAllMicroCMSPosts();
   return sortPostsByKeyDesc(posts.map(toPost));
 }
+
+/** ソート済みの記事一覧から先頭 count 件を取り出す（Home の New Post プレビュー用）。 */
+export function takeLatestPosts(posts: Post[], count: number): Post[] {
+  return posts.slice(0, count);
+}
