@@ -23,9 +23,13 @@ set -euo pipefail
 NIGHT_RUN_REPO_URL="${NIGHT_RUN_REPO_URL:-https://github.com/rinyaaa/portfolio-v2.git}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# コンテナ名・ボリューム名はプロジェクト固有にする。他プロジェクト(kakureru等)と
+# "night-runner"/"night-runner-workdir" を共有すると、cloneされたリポジトリの
+# 中身が使い回されて別プロジェクトを触ってしまう事故が起きる(実際に発生した)。
+# IMAGE_NAMEはビルド成果物(状態を持たない)なので共有のままでよい。
 IMAGE_NAME="night-runner"
-CONTAINER_NAME="night-runner"
-VOLUME_NAME="night-runner-workdir"
+CONTAINER_NAME="night-runner-portfolio-v2"
+VOLUME_NAME="night-runner-workdir-portfolio-v2"
 STATE_DIR="$REPO_ROOT/night-run/state"
 
 cmd="${1:-}"
