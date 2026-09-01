@@ -1,0 +1,20 @@
+---
+import { Icon } from "astro-icon/components";
+import { skills } from "../data/skills";
+import styles from "./SkillSection.module.scss";
+---
+
+<section class={styles.section}>
+  <h2 class="section-title">Skill</h2>
+
+  <ul class={styles.list}>
+    {
+      skills.map((skill) => (
+        <li class={styles.item}>
+          <Icon name={skill.icon} class={styles.icon} aria-hidden="true" />
+          <span class={styles.label}>{skill.name}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
