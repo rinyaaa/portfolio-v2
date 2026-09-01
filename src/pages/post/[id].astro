@@ -17,9 +17,15 @@ interface Props {
 }
 
 const { post } = Astro.props as Props;
+
+const description = post.bodyHtml
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\s+/g, " ")
+  .trim()
+  .slice(0, 120);
 ---
 
-<Base title={`${post.title} — nenex`}>
+<Base title={`${post.title} — nenex`} description={description || undefined}>
   <article class={styles.article}>
     <div class={styles.eyecatch}>
       <img

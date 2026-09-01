@@ -1,5 +1,9 @@
 # Portfolio Site — 設計・技術選定
 
+安全ルールを含む全AIエージェント共通の指示は以下からインポートされる。**ルールの本体はAGENTS.md側にあり、変更もそちらで行う**——このファイルにはClaude Code固有の事項だけを書くこと（二重管理による食い違いを防ぐため）。
+
+@AGENTS.md
+
 個人ポートフォリオサイト。公開先は **nenex.me**（Cloudflare Pages のカスタムドメイン）。
 **microCMS** を CMS として記事を管理し、microCMS の更新を Webhook で受けて Cloudflare Pages が
 再ビルド → 自動デプロイされる構成。
@@ -203,15 +207,9 @@ portfolio/
 
 ---
 
-## 7. 開発コマンド（予定）
+## 7. 開発コマンド
 
-```bash
-npm install
-npm run dev        # ローカル開発（要 .env）
-npm run build      # 本番ビルド（microCMS から全件取得して静的化）
-npm run preview    # ビルド結果をローカル確認
-npm run test       # 整形ロジックなどの単体テスト（vitest）
-```
+[README.md](./README.md) を参照（人間向けセットアップ手順・コマンド一覧はそちらに一本化）。
 
 ---
 
@@ -223,16 +221,34 @@ npm run test       # 整形ロジックなどの単体テスト（vitest）
   本当に必要な箇所だけにし、`client:load` の濫用を避ける（`client:visible` を優先）。
 - 純粋関数（整形・ソート）には必ずテストを添える。
 - microCMS の仕様（コンテンツ定義・フィールド）を変える場合は本ファイルを更新してから実装する。
+- **UI/デザインを実装・変更する前は必ずFigmaを見る**（下記9.1）。見た目に関わるタスクをFigma未確認のまま実装しない。
 
 ---
 
-## 9. 実装 TODO（順序）
+## 9. Claude Code固有の補足（安全網 / 開発体制）
 
-1. ~~雛形作成 + `@astrojs/react` / `react-aria-components` 追加~~（完了）
-2. ~~タイトルパーサ~~（esa 時代の名残。microCMS 移行で**不要**になり削除済み）
-3. `src/lib/microcms.ts`：全件取得（ページング）・整形・型定義。**← いまここ**
-4. `src/pages/index.astro`：ビルド時取得 → `PostList`（island）へ渡す。
-5. `PostList.tsx` / `GenreFilter.tsx`：ジャンルフィルタ + `date` 降順ソート。
-6. `src/pages/works/[id].astro`：`getStaticPaths` で詳細ページを静的生成。
-7. Cloudflare Pages にデプロイ、環境変数設定、Deploy Hook 発行。
-8. microCMS の Webhook に Deploy Hook URL を登録して自動反映を確認。
+### 9.1 デザインソース（Figma）
+
+UI/デザインを実装・変更する前は必ずFigmaを確認する。フレーム↔ページ対応・未確定データの詳細は `.claude/skills/portfolio-design-source/SKILL.md`（UI関連タスクで自動発動）。
+
+### 9.2 安全網 / 開発体制
+
+安全ルールの本体は `AGENTS.md`（冒頭で `@AGENTS.md` インポート済み）。ここにはAGENTS.mdに無いClaude Code固有の実装詳細・プロジェクト固有事実だけ書く。
+
+- **開発体制**：エンジニア（あなた）常駐モード。denyベースラインは維持しつつ、緩和が必要な場面は都度相談。
+- AGENTS.mdルール1（破壊的コマンド）は `.claude/hooks/deny_dangerous_bash.py`（PreToolUse hook）で強制。検出パターン変更時は `python3 .claude/hooks/test_deny_dangerous_bash.py` を実行。
+- **GitHub / PRレビュー運用**：GitHub（`rinyaaa/portfolio-v2`）でPRベースレビュー。CI（`.github/workflows/ci.yml`：build+test+gitleaks secret-scan）・Dependabot設定済み、マージ前に `/security-review` を実行。ブランチ保護は未設定（要GitHub側設定）。
+- **night-run**：コンテナ内はtestのみ実行し、build（microCMSへのビルド時fetchが発生する）は含めない——無人サンドボックスにmicroCMSのAPIキーを持ち込まない判断（2026-09-01）。build検証はCIの役割。
+
+### 9.3 推測で進めない（ポートフォリオ全般の方針）
+
+このリポジトリでは、人物・実績・SNSリンクなど**ユーザー本人に関する事実として公開される内容**を扱う場面が多い。技術的な判断以上に「本人に確認しないと分からないこと」が多いプロジェクトなので、以下は自分の判断で埋めずユーザーに確認する：
+
+- プロフィール文・経歴・所属・資格・受賞歴などの本文コピー
+- 技術スタック一覧（Skillセクション等）の具体的な項目
+- SNS/連絡先のURL、QRコードの遷移先
+- Figmaのフレームがどのページ・どの実装範囲に対応するか（複数解釈がありうる場合）
+- 今回のセッションでどこまで実装を進めるか（デザイン確認だけか、実装まで含むか等）
+
+該当データが必要な実装は `github-task-intake` でissue化し、その時点でユーザーに確認する運用とする。
+

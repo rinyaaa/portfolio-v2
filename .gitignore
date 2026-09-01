@@ -28,3 +28,12 @@ pnpm-debug.log*
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# Claude Code local settings (personal overrides, not shared)
+.claude/settings.local.json
+
+# night-run (Python + generated run state)
+__pycache__/
+*.pyc
+night-run/state/*
+!night-run/state/.gitkeep
