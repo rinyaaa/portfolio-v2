@@ -1,13 +1,16 @@
 title = "gitleaks config"
 
 [extend]
-useDefault = true   # gitleaks同梱のデフォルト検出ルールを継承し、allowlistだけ追加する
+useDefault = true   # gitleaks同梱のデフォルト検出ルールを継承する
 
-[allowlist]
-description = "誤検知として確認済みのパターン"
-paths = [
-  # 例: '''testdata/fixtures/.*''',
-]
-regexes = [
-  # 例: '''EXAMPLE_PLACEHOLDER_[A-Z0-9]+''',
-]
+# 誤検知が見つかったら、本物の秘密情報でないことを確認した上で以下を有効にする
+# （空の[allowlist]テーブルはgitleaksがエラーにするため、使うときだけ追加すること）。
+#
+# [allowlist]
+# description = "誤検知として確認済みのパターン"
+# paths = [
+#   '''testdata/fixtures/.*''',
+# ]
+# regexes = [
+#   '''EXAMPLE_PLACEHOLDER_[A-Z0-9]+''',
+# ]
