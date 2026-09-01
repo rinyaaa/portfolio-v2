@@ -1,0 +1,42 @@
+---
+import type { Award } from "../types/award";
+import { hasAwards } from "../lib/awards";
+import { formatJaDate } from "../lib/formatDate";
+import styles from "./Awards.module.scss";
+
+/**
+ * 実績データ。更新頻度が低いためmicroCMS化せずコードへ直接ハードコードする。
+ * 実データ未確定のため現状は空配列。
+ */
+const awards: Award[] = [];
+---
+
+{
+  hasAwards(awards) && (
+    <section class={styles.section}>
+      <h2 class="section-title">Awards</h2>
+      <ul class={styles.list}>
+        {awards.map((award) => (
+          <li class={styles.item}>
+            <span class={styles.rank}>{award.rank}</span>
+            <div class={styles.body}>
+              <p class={styles.title}>{award.title}</p>
+              {(award.date || award.project) && (
+                <div class={styles.meta}>
+                  {award.date && (
+                    <time class={styles.date} datetime={award.date}>
+                      {formatJaDate(award.date)}
+                    </time>
+                  )}
+                  {award.project && (
+                    <span class={styles.project}>{award.project}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
