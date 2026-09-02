@@ -1,0 +1,49 @@
+.section {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
+}
+
+.list {
+  display: flex;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 28px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.link:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+// Figmaデザインの実際のグラデーション値(get_design_contextで取得)
+.instagram {
+  background: linear-gradient(135deg, #f471ab, #fa718c);
+}
+
+.x {
+  background: linear-gradient(135deg, #06080b, #161e28);
+}
+
+.github {
+  background: linear-gradient(135deg, #47515f, #3b4554);
+}
+
+.email {
+  background: linear-gradient(135deg, #b186fa, #8c8bf9);
+}
