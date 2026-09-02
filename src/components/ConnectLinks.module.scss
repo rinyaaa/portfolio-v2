@@ -2,11 +2,6 @@
   max-width: var(--content-width);
   margin-inline: auto;
   padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
-
-  // このセクションだけ見出し下の余白を16pxにする(他セクションの.section-titleは変えない)
-  :global(.section-title) {
-    margin-bottom: 16px;
-  }
 }
 
 .list {
