@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { skills } from "./skills";
-import logosIconSet from "@iconify-json/logos/icons.json";
 
 describe("skills", () => {
   it("issue #26 で指定された12件をすべて含む", () => {
@@ -21,16 +20,14 @@ describe("skills", () => {
     ]);
   });
 
-  it("各アイコンは @iconify-json/logos に実在する", () => {
+  it("各アイコンは有効なviewBoxとSVGマークアップを持つ", () => {
     for (const skill of skills) {
-      expect(skill.icon).toMatch(/^logos:/);
-      const iconName = skill.icon.replace(/^logos:/, "");
-      expect(logosIconSet.icons).toHaveProperty(iconName);
+      expect(skill.viewBox).toMatch(/^\d+ \d+ \d+ \d+$/);
+      expect(skill.svg).toContain("<path");
     }
   });
 
-  it("アイコン・ラベルとも重複がない", () => {
-    expect(new Set(skills.map((s) => s.icon)).size).toBe(skills.length);
+  it("ラベルに重複がない", () => {
     expect(new Set(skills.map((s) => s.name)).size).toBe(skills.length);
   });
 });
