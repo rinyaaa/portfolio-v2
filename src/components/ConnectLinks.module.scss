@@ -20,14 +20,30 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--white);
-  color: var(--pink-strong);
+  color: var(--white);
   font-size: 1.5rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .link:hover {
-  background: var(--pink);
-  color: var(--white);
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+// Figmaデザインの実際のグラデーション値(get_design_contextで取得)
+.instagram {
+  background: linear-gradient(135deg, #f471ab, #fa718c);
+}
+
+.x {
+  background: linear-gradient(135deg, #06080b, #161e28);
+}
+
+.github {
+  background: linear-gradient(135deg, #47515f, #3b4554);
+}
+
+.email {
+  background: linear-gradient(135deg, #b186fa, #8c8bf9);
 }
