@@ -23,7 +23,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "astro": "^7.2.10",
-    "astro-icon": "^1.1.5",
+    "astro-icon": "^1.2.0",
     "react": "^19.2.8",
     "react-aria-components": "^1.19.0",
     "react-dom": "^19.2.8",
