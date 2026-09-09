@@ -1,0 +1,28 @@
+---
+import PostCard from "./PostCard";
+import { getPublishedPosts, takeLatestPosts } from "../lib/microcms";
+import styles from "./NewPostPreview.module.scss";
+
+const PREVIEW_COUNT = 3;
+
+const posts = await getPublishedPosts();
+const latestPosts = takeLatestPosts(posts, PREVIEW_COUNT);
+---
+
+{
+  latestPosts.length > 0 && (
+    <section class={styles.section}>
+      <h2 class="section-title">New Post</h2>
+      <ul class={styles.grid}>
+        {latestPosts.map((post) => (
+          <li class={styles.item}>
+            <PostCard post={post} />
+          </li>
+        ))}
+      </ul>
+      <a href="/post" class={styles.showMore}>
+        Show more
+      </a>
+    </section>
+  )
+}
