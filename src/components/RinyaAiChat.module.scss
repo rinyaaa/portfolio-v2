@@ -104,9 +104,29 @@
 }
 
 .status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin: 0;
   font-size: 0.8rem;
   color: var(--text-muted);
+
+  p {
+    margin: 0;
+  }
+}
+
+.retry {
+  padding: 6px 12px;
+  min-height: 44px;
+  border: 1px solid var(--pink-strong);
+  border-radius: 999px;
+  background: var(--pink-soft);
+  color: var(--pink-strong);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .form {

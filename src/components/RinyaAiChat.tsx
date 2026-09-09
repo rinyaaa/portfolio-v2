@@ -28,13 +28,11 @@ export default function RinyaAiChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [lastQuestion, setLastQuestion] = useState<string | null>(null);
 
   const suggestions = RINYA_QA.slice(0, 3).map((qa) => qa.keyword);
 
-  function ask(question: string) {
-    if (!question || status === "sending") return;
-    setMessages((prev) => [...prev, { role: "user", text: question }]);
-    setInput("");
+  function send(question: string) {
     setStatus("sending");
     respond(question)
       .then((answer) => {
@@ -42,6 +40,19 @@ export default function RinyaAiChat() {
         setStatus("idle");
       })
       .catch(() => setStatus("error"));
+  }
+
+  function ask(question: string) {
+    if (!question || status === "sending") return;
+    setMessages((prev) => [...prev, { role: "user", text: question }]);
+    setLastQuestion(question);
+    setInput("");
+    send(question);
+  }
+
+  function retry() {
+    if (!lastQuestion || status === "sending") return;
+    send(lastQuestion);
   }
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -68,9 +79,12 @@ export default function RinyaAiChat() {
             ))}
             {status === "sending" && <p className={styles.status}>入力中…</p>}
             {status === "error" && (
-              <p className={styles.status} role="alert">
-                {ERROR_MESSAGE}
-              </p>
+              <div className={styles.status}>
+                <p role="alert">{ERROR_MESSAGE}</p>
+                <button type="button" className={styles.retry} onClick={retry}>
+                  もう一度送る
+                </button>
+              </div>
             )}
           </div>
 
