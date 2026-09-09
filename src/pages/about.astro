@@ -1,0 +1,18 @@
+---
+import Base from "../layouts/Base.astro";
+import BusinessCard from "../components/BusinessCard";
+import { skills } from "../data/skills";
+import styles from "./about.module.scss";
+
+const skillNames = skills.map((skill) => skill.name);
+---
+
+<Base
+  title="About — nenex"
+  description="石丸凜弥（りんや / いしまる / nenex / ねねっくす）のWeb名刺。ドラッグまたはクリックで表・裏を切り替えられます。愛知工業大学 システム工学研究会 代表。GitHub @rinyaaa / X @r2e8l。"
+>
+  <section class={styles.section}>
+    <h1 class={styles.visuallyHidden}>About — 石丸凜弥のWeb名刺</h1>
+    <BusinessCard client:visible skills={skillNames} />
+  </section>
+</Base>
