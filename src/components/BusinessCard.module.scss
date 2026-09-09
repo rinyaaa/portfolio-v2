@@ -1,0 +1,238 @@
+/* 名刺の紙面色・アクセントはFigma実測値（docs/design/README.md）に合わせる。
+ * global.scss の --bg-* 等（#44で確定予定）とは別軸なので、ここではハードコードする。 */
+$paper: #fcf3fc;
+$ink: #202020;
+$muted: #666666;
+$tag-bg: #fbddf1;
+$tag-text: #c81a68;
+$focus-ring: #4a2233;
+
+.stage {
+  position: relative;
+  width: min(100%, 1254px);
+  margin-inline: auto;
+  perspective: 2400px;
+}
+
+.card {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1254 / 758;
+  border-radius: var(--radius, 16px);
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &.dragging {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
+
+/* 視覚的には何も描かず、カード全面を覆ってドラッグ/クリック/キーボード操作だけを受け持つ。
+ * 実コンテンツ（見出し・alt・テキスト）は兄弟要素の .face 側にあり、常にATへ届く。 */
+.flipControl {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  cursor: pointer;
+  touch-action: pan-y;
+  border-radius: var(--radius, 16px);
+
+  &:focus-visible {
+    outline: 3px solid #{$focus-ring};
+    outline-offset: 4px;
+  }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  background: $paper;
+  border-radius: inherit;
+  overflow: hidden;
+  backface-visibility: hidden;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 12%);
+}
+
+.front {
+  grid-template-columns: 1fr 1fr;
+}
+
+.back {
+  grid-template-columns: minmax(0, 40%) 1fr;
+  transform: rotateY(180deg);
+}
+
+.illustrationWrap,
+.photoWrap {
+  height: 100%;
+  overflow: hidden;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.frontInfo,
+.backInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(6px, 1.4vw, 12px);
+  padding: clamp(12px, 3vw, 32px);
+  border-left: 2px solid #{$ink};
+  color: $ink;
+  overflow: hidden;
+}
+
+.brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3.6vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.role {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.7rem, 1.8vw, 1.1rem);
+  color: $muted;
+}
+
+.tags {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: clamp(0.55rem, 1.3vw, 0.85rem);
+  color: $muted;
+
+  li {
+    line-height: 1.5;
+  }
+}
+
+.socials {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: clamp(0.6rem, 1.4vw, 0.9rem);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.qr {
+  margin-top: 6px;
+}
+
+.qr img {
+  display: block;
+  width: clamp(48px, 8vw, 96px);
+  height: clamp(48px, 8vw, 96px);
+}
+
+.qrPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: clamp(48px, 8vw, 96px);
+  height: clamp(48px, 8vw, 96px);
+  border: 1px dashed $muted;
+  border-radius: 8px;
+  font-size: clamp(0.5rem, 1.1vw, 0.7rem);
+  color: $muted;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.furigana {
+  margin: 0;
+  font-size: clamp(0.55rem, 1.3vw, 0.85rem);
+  color: $muted;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 3.4vw, 2.2rem);
+  line-height: 1.2;
+}
+
+.grade,
+.affiliation,
+.email {
+  margin: 0;
+  font-size: clamp(0.6rem, 1.5vw, 0.95rem);
+}
+
+.email {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skillBlock {
+  margin-top: clamp(4px, 1vw, 10px);
+}
+
+.skillHeading {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.6rem, 1.4vw, 0.85rem);
+  color: $muted;
+}
+
+.skillList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  li {
+    background: $tag-bg;
+    color: $tag-text;
+    font-weight: 600;
+    font-size: clamp(0.45rem, 1vw, 0.7rem);
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
