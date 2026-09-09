@@ -1,0 +1,24 @@
+---
+import { skills } from "../data/skills";
+import styles from "./SkillSection.module.scss";
+---
+
+<section class={styles.section}>
+  <h2 class="section-title">Skill</h2>
+
+  <ul class={styles.list}>
+    {
+      skills.map((skill) => (
+        <li class={styles.item}>
+          <svg
+            class={styles.icon}
+            viewBox={skill.viewBox}
+            aria-hidden="true"
+            set:html={skill.svg}
+          />
+          <span class={styles.label}>{skill.name}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
