@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { toPost } from './microcms';
-import type { MicroCMSPost, MicroCMSCategory } from '../types/post';
+import { toPost, takeLatestPosts } from './microcms';
+import type { MicroCMSPost, MicroCMSCategory, Post } from '../types/post';
 
 /** テスト用の MicroCMSPost を作るヘルパー（必要な項目だけ上書き）。 */
 function makeRaw(overrides: Partial<MicroCMSPost> = {}): MicroCMSPost {
@@ -86,5 +86,32 @@ describe('toPost', () => {
 
   it('publishedAt 未設定なら null', () => {
     expect(toPost(makeRaw({ publishedAt: undefined })).publishedAt).toBeNull();
+  });
+});
+
+/** テスト用の Post を作るヘルパー（必要な項目だけ上書き）。 */
+function makePost(overrides: Partial<Post> = {}): Post {
+  return toPost(makeRaw(overrides as Partial<MicroCMSPost>));
+}
+
+describe('takeLatestPosts', () => {
+  it('先頭 count 件だけを返す', () => {
+    const posts = [makePost({ id: 'a' }), makePost({ id: 'b' }), makePost({ id: 'c' })];
+    expect(takeLatestPosts(posts, 2).map((p) => p.id)).toEqual(['a', 'b']);
+  });
+
+  it('count が件数以上なら全件を返す', () => {
+    const posts = [makePost({ id: 'a' }), makePost({ id: 'b' })];
+    expect(takeLatestPosts(posts, 5).map((p) => p.id)).toEqual(['a', 'b']);
+  });
+
+  it('0件なら空配列を返す', () => {
+    expect(takeLatestPosts([], 3)).toEqual([]);
+  });
+
+  it('元の配列を変更しない', () => {
+    const posts = [makePost({ id: 'a' }), makePost({ id: 'b' })];
+    takeLatestPosts(posts, 1);
+    expect(posts).toHaveLength(2);
   });
 });
