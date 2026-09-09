@@ -318,7 +318,7 @@ def build_prompt(task, state):
 ## 手順
 1. {issue_fetch_instruction} 実装規約はAGENTS.md/CLAUDE.mdに従うこと。
 2. 各段階が終わるたびに以下を実行し、進捗を記録する(必須。レートリミット等で中断しても再開できるようにするため):
-   `python3 night-run/update_step.py "{task['title']}" "<段階名: 実装/デバッグ/レビュー/修正/コンフリクト解消/PR作成>" [レビューラウンド数]`
+   `python3 night-run/update_step.py "{task['title']}" "<段階名: 実装/デバッグ/レビュー/修正/コンフリクト解消/PR作成/CodeRabbit対応>" [レビューラウンド数]`
 3. CLAUDE.mdに記載のテスト・静的解析コマンド(例: `npm test` / `pytest` / `flutter test` 等、プロジェクトに合わせて読み替える)を実行し、失敗があれば直す。
 4. Task/Agentツールで `reviewer` サブエージェントにレビューさせ、指摘に対応する。
    - グリーン かつ reviewer承認 → 次へ
@@ -329,6 +329,14 @@ def build_prompt(task, state):
 6. `gh pr create` でPRを作成する。
    - グリーン かつ reviewer承認 → 通常PR(ready)。本文に `{closes_line}` を含め、マージ時に対象issueが自動クローズされるようにする
    - 打ち切りの場合 → `--draft` を付け、本文に「完了した内容」「未完了の点」「次にやるべきこと」を書く(このケースはまだ未完了なので `Closes` は書かない)
+7. readyのPRを作成した場合は、CodeRabbit(`coderabbitai[bot]`)のレビューに対応する。
+   - `gh pr view <PR番号> --json reviews,comments` で coderabbitai のレビューが付くのを**最大10分**待つ(60秒間隔で確認)。
+     10分待っても付かなければ待たずに終える。**draftとして打ち切った場合、CodeRabbitはdraftをレビューしない設定なのでこの手順ごとスキップしてよい。**
+   - 付いた指摘のうち、**実際のバグ・エッジケースの見落とし・AGENTS.md/CLAUDE.mdの規約違反を指したものだけ**を直す。
+     好みの問題や、このリポジトリの方針と食い違う提案(安全網の緩和、規約に反するリファクタ等)は直さず、
+     そのスレッドに「対応しない理由」を1行返信する。指摘を鵜呑みにしないこと。
+   - 直したら3.のテストに戻ってグリーンを確認し、コミットして push する。
+   - このサイクルは**最大2周**まで。残った指摘はPR本文の「未完了の点」に列挙して終える。
 
 ## 最後の出力
 最後は指定されたJSONスキーマに従い、以下を報告すること:
