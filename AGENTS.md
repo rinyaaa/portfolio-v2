@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-AIを活用したアプリケーション開発用の汎用テンプレート。派生プロジェクトで中身を実装する。ビルド/実行/テストコマンドはCLAUDE.mdに記載される（プロジェクト確定後に埋まる）。
+石丸凜弥の個人ポートフォリオサイト（[nenex.me](https://nenex.me)）。Astro（static出力）+ React islands、記事はmicroCMSからビルド時に取得、Cloudflare Pagesで配信。ビルド/実行/テストコマンドはREADME.mdの「コマンド」、設計・技術選定の理由はCLAUDE.mdを参照。（このリポジトリは `~/myproject/Ai_temp/ai_template` テンプレートから派生している。`.claude/` と `night-run/` の同期方針はCLAUDE.md §9.2）
 
 ## 安全ルール（全エージェント共通）
 
