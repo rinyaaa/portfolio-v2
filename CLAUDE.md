@@ -222,6 +222,11 @@ portfolio/
 - 純粋関数（整形・ソート）には必ずテストを添える。
 - microCMS の仕様（コンテンツ定義・フィールド）を変える場合は本ファイルを更新してから実装する。
 - **UI/デザインを実装・変更する前は必ずFigmaを見る**（下記9.1）。見た目に関わるタスクをFigma未確認のまま実装しない。
+  タッチ操作・コントラストなどFigmaに書かれていない観点は `ui-guidelines` スキルで補う（**配色の正はFigmaと `src/styles/` のトークン**なので、同スキルの初期パレットは使わない）。
+
+> この節と第9章が、AGENTS.md「作業の進め方」でいう**プロジェクト固有の約束事**にあたる。
+> `implementation-review` スキルはここに書かれた約束をレビュー観点として拾うので、
+> 新しい約束を決めたらこの節に追記する（スキル側に書かない）。
 
 ---
 
@@ -236,8 +241,11 @@ UI/デザインを実装・変更する前は必ずFigmaを確認する。フレ
 安全ルールの本体は `AGENTS.md`（冒頭で `@AGENTS.md` インポート済み）。ここにはAGENTS.mdに無いClaude Code固有の実装詳細・プロジェクト固有事実だけ書く。
 
 - **開発体制**：エンジニア（あなた）常駐モード。denyベースラインは維持しつつ、緩和が必要な場面は都度相談。
-- AGENTS.mdルール1（破壊的コマンド）は `.claude/hooks/deny_dangerous_bash.py`（PreToolUse hook）で強制。検出パターン変更時は `python3 .claude/hooks/test_deny_dangerous_bash.py` を実行。
+- AGENTS.mdルール1（破壊的コマンド。ワークツリーの削除・prune を含む）は `.claude/settings.json` の `permissions.deny` と `.claude/hooks/deny_dangerous_bash.py`（PreToolUse hook）で強制。検出パターン変更時は `python3 .claude/hooks/test_deny_dangerous_bash.py` と `python3 scripts/verify_safety_net.py` を実行。
 - **GitHub / PRレビュー運用**：GitHub（`rinyaaa/portfolio-v2`）でPRベースレビュー。CI（`.github/workflows/ci.yml`：build+test+gitleaks secret-scan）・Dependabot設定済み、マージ前に `/security-review` を実行。ブランチ保護は未設定（要GitHub側設定）。
+- **作業の進め方**：AGENTS.md「作業の進め方」の5フェーズはスキルとして自動発動する——着手前は `task-intake`、実装後は `implementation-review`（`.claude/agents/impl-reviewer*` を起動）、完了時は `work-log`。並列実装が必要なときだけ `parallel-worktree`（既定は直列）。
+- **置き場所**：合意済みの計画書は `docs/plans/`、作業記録は `docs/history/`（どちらもインデックスの `README.md` に1行追記する）。`docs/history/` は次のタスクで読まれない前提なので、効く知見はこのCLAUDE.mdか該当スキルへ1行に削って昇格させる。
+- **テンプレート同期**：`.claude/` と `night-run/` の上流は `~/myproject/Ai_temp/ai_template`。取り込みは一方向のコピーにせず、**ファイルごとに新旧を確認する**——portfolio側のほうが新しい箇所がある（`scripts/verify_safety_net.py` の `IS_TEMPLATE` 判定、night-runのNode 22 / repo URL / npmドメイン、`task-intake` のSEO観点、`ui-guidelines` の「配色の正はFigma」）。
 - **night-run**：コンテナ内はtestのみ実行し、build（microCMSへのビルド時fetchが発生する）は含めない——無人サンドボックスにmicroCMSのAPIキーを持ち込まない判断（2026-09-01）。build検証はCIの役割。
 
 ### 9.3 推測で進めない（ポートフォリオ全般の方針）
@@ -250,5 +258,5 @@ UI/デザインを実装・変更する前は必ずFigmaを確認する。フレ
 - Figmaのフレームがどのページ・どの実装範囲に対応するか（複数解釈がありうる場合）
 - 今回のセッションでどこまで実装を進めるか（デザイン確認だけか、実装まで含むか等）
 
-該当データが必要な実装は `github-task-intake` でissue化し、その時点でユーザーに確認する運用とする。
+該当データが必要な実装は `task-intake` でissue化し、その時点でユーザーに確認する運用とする。
 
