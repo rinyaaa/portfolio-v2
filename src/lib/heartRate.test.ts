@@ -72,6 +72,35 @@ describe('pickLatestHeartRate', () => {
       isFallback: true,
     });
   });
+
+  it('想定外の形（history の要素のrecordedAtがパース不能）は無視する', () => {
+    const data = {
+      current: { heartRate: 0, recordedAt: '2026-01-01T00:00:00.000Z' },
+      history: [
+        { heartRate: 65, recordedAt: 'not-a-date' },
+        { heartRate: 55, recordedAt: '2025-12-31T11:00:00.000Z' },
+      ],
+    };
+    expect(pickLatestHeartRate(data)).toEqual({
+      status: 'ok',
+      heartRate: 55,
+      recordedAt: '2025-12-31T11:00:00.000Z',
+      isFallback: true,
+    });
+  });
+
+  it('想定外の形（current.recordedAtがパース不能）は history にフォールバックする', () => {
+    const data = {
+      current: { heartRate: 72, recordedAt: 'not-a-date' },
+      history: [{ heartRate: 60, recordedAt: '2025-12-31T00:00:00.000Z' }],
+    };
+    expect(pickLatestHeartRate(data)).toEqual({
+      status: 'ok',
+      heartRate: 60,
+      recordedAt: '2025-12-31T00:00:00.000Z',
+      isFallback: true,
+    });
+  });
 });
 
 describe('formatJstTime', () => {
@@ -82,5 +111,9 @@ describe('formatJstTime', () => {
   it('UTC/JSTの日付跨ぎでも時刻だけを返す', () => {
     // UTC 2025-12-31T15:30 = JST 2026-01-01 00:30
     expect(formatJstTime('2025-12-31T15:30:00.000Z')).toBe('00:30');
+  });
+
+  it('パース不能な文字列は空文字を返す（NaN:NaNにしない）', () => {
+    expect(formatJstTime('not-a-date')).toBe('');
   });
 });

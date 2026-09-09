@@ -1,6 +1,8 @@
 .pill {
   display: flex;
   width: fit-content;
+  max-width: calc(100vw - 32px);
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin: 0 auto clamp(32px, 6vw, 48px);

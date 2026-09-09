@@ -5,6 +5,7 @@ import styles from "./HeartRate.module.scss";
 
 const HEALTH_API_URL = "https://api.nenex.me/health";
 const ALIVE_URL = "https://alive.nenex.me";
+const FETCH_TIMEOUT_MS = 8000;
 
 type State = { status: "loading" } | { status: "ok"; heartRate: number; measuredAt: string | null } | { status: "unavailable" };
 
@@ -17,8 +18,10 @@ export default function HeartRate() {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-    fetch(HEALTH_API_URL)
+    fetch(HEALTH_API_URL, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`health API request failed: ${res.status}`);
         return res.json() as Promise<HealthResponse>;
@@ -38,10 +41,13 @@ export default function HeartRate() {
       })
       .catch(() => {
         if (!cancelled) setState({ status: "unavailable" });
-      });
+      })
+      .finally(() => clearTimeout(timer));
 
     return () => {
       cancelled = true;
+      clearTimeout(timer);
+      controller.abort();
     };
   }, []);
 

@@ -7,8 +7,10 @@ import styles from "./RinyaAiChat.module.scss";
 type Message = { role: "user" | "ai"; text: string };
 type Status = "idle" | "sending" | "error";
 
-const GREETING = "こんにちは！りんやのことなら何でも聞いてね〜";
-const ERROR_MESSAGE = "うまく答えられなかった…！少し時間をおいてもう一回聞いてみて。";
+// 人格データ（口調・持ちネタ）は本人提供のものだけを使う方針のため、
+// UI文言は本人の口調を装わず、状態を説明するだけの中立的な文にする（CLAUDE.md §9.3）。
+const GREETING = "質問を入力してください。";
+const ERROR_MESSAGE = "エラーが発生しました。時間をおいてもう一度お試しください。";
 
 /** 回答を1問1答のQ&Aから探す（今夜はデータが空のため常にフォールバックになる）。 */
 function respond(question: string): Promise<string> {
@@ -67,7 +69,7 @@ export default function RinyaAiChat() {
         <Dialog className={styles.dialog} aria-label="rinyaAIチャット">
           <header className={styles.header}>
             <p className={styles.title}>rinyaAI</p>
-            <p className={styles.subtitle}>AIが本人の口調で答えます</p>
+            <p className={styles.subtitle}>AIが固定Q&amp;Aで回答します（回答データは準備中）</p>
           </header>
 
           <div className={styles.messages} aria-live="polite">

@@ -11,7 +11,11 @@ function isFiniteNumber(value: unknown): value is number {
 function isValidEntry(value: unknown): value is ValidEntry {
   if (typeof value !== 'object' || value === null) return false;
   const entry = value as Record<string, unknown>;
-  return isFiniteNumber(entry.heartRate) && typeof entry.recordedAt === 'string';
+  return (
+    isFiniteNumber(entry.heartRate) &&
+    typeof entry.recordedAt === 'string' &&
+    Number.isFinite(new Date(entry.recordedAt).getTime())
+  );
 }
 
 /**
@@ -39,9 +43,14 @@ export function pickLatestHeartRate(data: unknown): HeartRateResult {
 
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
-/** ISO 8601 の瞬間を JST の "HH:mm" に整形する（フォールバック時の計測時刻併記に使う）。 */
+/**
+ * ISO 8601 の瞬間を JST の "HH:mm" に整形する（フォールバック時の計測時刻併記に使う）。
+ * 不正なタイムスタンプ（パース不能）のときは空文字を返す。
+ */
 export function formatJstTime(iso: string): string {
-  const jst = new Date(new Date(iso).getTime() + JST_OFFSET_MS);
+  const instant = new Date(iso).getTime();
+  if (!Number.isFinite(instant)) return '';
+  const jst = new Date(instant + JST_OFFSET_MS);
   const hh = String(jst.getUTCHours()).padStart(2, '0');
   const mm = String(jst.getUTCMinutes()).padStart(2, '0');
   return `${hh}:${mm}`;
