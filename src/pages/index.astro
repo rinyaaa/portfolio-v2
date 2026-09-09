@@ -1,10 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
 import Profile from "../components/Profile.astro";
+import HeartRate from "../components/HeartRate";
 import SkillSection from "../components/SkillSection.astro";
 import NewPostPreview from "../components/NewPostPreview.astro";
 import Awards from "../components/Awards.astro";
+import BirthdayCountdown from "../components/BirthdayCountdown.astro";
 import ConnectLinks from "../components/ConnectLinks.astro";
+import RinyaAiChat from "../components/RinyaAiChat";
 ---
 
 <Base
@@ -12,8 +15,11 @@ import ConnectLinks from "../components/ConnectLinks.astro";
   description="石丸凜弥（りんや / いしまる / nenex / ねねっくす）のポートフォリオ。愛知工業大学 シス研・梶研究室 / NxTEND / FORGERS所属、Webフルスタック開発をしています。"
 >
   <Profile />
+  <HeartRate client:visible />
   <SkillSection />
   <NewPostPreview />
   <Awards />
+  <BirthdayCountdown />
   <ConnectLinks />
+  <RinyaAiChat client:load />
 </Base>

@@ -8,8 +8,10 @@
 **microCMS** を CMS として記事を管理し、microCMS の更新を Webhook で受けて Cloudflare Pages が
 再ビルド → 自動デプロイされる構成。
 
-> 既存の `nenex.me/api/health`（心拍数などの API）は別パスで稼働しており、
-> 本ポートフォリオ（ルート配信）とルーティングは競合しない。
+> 既存の心拍数などの API は `https://api.nenex.me/health`（別サービス・別ドメイン）で稼働しており、
+> 本ポートフォリオ（nenex.me ルート配信）とルーティングは競合しない。
+> `access-control-allow-origin: *` でAPIキー不要のため、Home の心拍ウィジェットはビルド時ではなく
+> クライアント側の実行時fetchで取得する（`src/components/HeartRate.tsx`、詳細は5節参照）。
 
 > このファイルは Claude Code 用のプロジェクト設計ドキュメント。実装の指針と
 > 制約をここに集約する。コードを書く前に必ず参照すること。
@@ -94,8 +96,8 @@ Dialog などに使う。
 ### カスタムドメイン（nenex.me）
 - Cloudflare Pages プロジェクトに **Custom domain = nenex.me** を割り当てる。
 - DNS が Cloudflare 管理なら CNAME/ALIAS は自動設定される。
-- ルート（`/`, `/works/*`, `/about` など）はポートフォリオ、`/api/health` は既存 API。
-  パスが分かれているのでルーティング競合なし。
+- ルート（`/`, `/works/*`, `/about` など）はポートフォリオ、心拍数などの API は別ドメイン
+  `https://api.nenex.me/health`。ドメインが分かれているのでルーティング競合なし。
 
 ### Webhook 設定（運用メモ）
 1. Cloudflare Pages プロジェクト → Settings → Builds & deployments → **Deploy Hook** を作成。
@@ -175,7 +177,7 @@ portfolio/
    │  ├─ PostList.module.scss
    │  ├─ GenreFilter.tsx      ← React island（React Aria Tabs/ComboBox）
    │  ├─ GenreFilter.module.scss
-   │  ├─ HeartRate.tsx        ← React island：/api/health を実行時 fetch して表示
+   │  ├─ HeartRate.tsx        ← React island：https://api.nenex.me/health を実行時 fetch して表示
    │  ├─ HeartRate.module.scss
    │  ├─ PostCard.astro       ← 静的カード
    │  └─ PostCard.module.scss

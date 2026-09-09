@@ -1,0 +1,71 @@
+.section {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dateBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.date {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--pink-strong);
+}
+
+.countdown {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  color: var(--heading);
+}
+
+.prefix {
+  font-size: 1rem;
+}
+
+.days {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.4rem;
+  color: var(--pink-strong);
+}
+
+.unit {
+  font-size: 1rem;
+}
+
+.celebration {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--pink-strong);
+}
+
+@media (max-width: 480px) {
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

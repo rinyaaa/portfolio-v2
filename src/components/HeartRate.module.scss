@@ -1,0 +1,51 @@
+.pill {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto clamp(32px, 6vw, 48px);
+  padding: 8px 16px;
+  background: var(--white);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.icon {
+  color: var(--pink-strong);
+}
+
+.value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-weight: 700;
+  color: var(--heading);
+  white-space: nowrap;
+}
+
+.unit {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.measuredAt {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.unavailable {
+  color: var(--text-muted);
+}
+
+.link {
+  padding-left: 10px;
+  border-left: 1px solid var(--pink-soft);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pink-strong);
+  white-space: nowrap;
+}
