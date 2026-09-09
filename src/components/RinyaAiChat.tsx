@@ -23,7 +23,7 @@ function respond(question: string): Promise<string> {
   });
 }
 
-/** Home右下の固定ピルから開くrinyaAIチャット（React island、client:load）。 */
+/** Home右下の固定ピルから開くrinyaAIチャット（React island、client:visible）。 */
 export default function RinyaAiChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
