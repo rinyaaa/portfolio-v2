@@ -165,6 +165,10 @@ Dialog などに使う。
   - 人格データは `src/data/rinya-persona.ts`。**口調ルール・発言例は本人提供のものだけを入れる**（§9.3）。未提供のうちは空配列のままにし、その場合は本人の口調を装わず中立的な丁寧語で答える。
   - `facts`（回答の根拠）は「本人が提供しサイト上で公開済みの事実」だけを、表示側の元データ（`src/data/profile.ts` / `skill-labels.ts` / `birthday.ts`）から直接 import して組み立てる。**表示とAIで同じ事実を二重管理しない。**
   - 守り：同一オリジンのみ受付 / 質問文200文字まで / IP毎 10回/分（`ratelimits` バインディング）/ 会話履歴を送らない1問1答 / **質問文をログに出さない**（`observability` 有効なので Workers Logs に載ってしまう）/ Workers AI がエラー・無料枠超過なら固定Q&A（`src/data/rinya-qa.ts`）へフォールバック。
+    レート制限が判定できないとき（バインディング欠落・`limit()` の例外）も**AIを呼ばずフォールバックする**——ここを通してしまうと制限が壊れている間に無料枠を使い切られる。
+  - ⚠️ **上の「費用の上限」は Cloudflare アカウントが Workers Free プランであることに依存している**（2026-09-10 時点で Free を確認済み）。
+    `Origin` 判定は偽装可能でボット対策にはならないが、Free なら超過が課金ではなくエラーになるため被害は「その日答えられない」で止まる、という前提で
+    Turnstile を入れない判断をしている（`docs/plans/2026-09-10-rinya-ai-workers-ai.md`）。**Paid に上げるなら、先に Turnstile か KV の日次上限を入れること。**
   - **`astro.config.mjs` の `remoteBindings` は既定 false のままにする。** true にすると `astro build` のプリレンダリング時に Cloudflare へリモート接続を張り、認証情報が無い CI でビルドが落ちる（`Failed to start the remote proxy session`）。ローカルで実物の生成を試すときだけ `npx wrangler login && CLOUDFLARE_REMOTE_BINDINGS=true npm run dev`（ローカルからでも本物を呼ぶので無料枠を消費する）。
   - バインディングを追加・変更したら `npx wrangler types`（= `npm run generate-types`）で `worker-configuration.d.ts` を再生成する。
     この生成物は**コミットする**——`tsconfig.json` が参照しており、無いと `astro check` が `env.AI` を解決できず

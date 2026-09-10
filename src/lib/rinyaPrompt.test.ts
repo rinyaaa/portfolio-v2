@@ -5,6 +5,7 @@ import {
   MAX_QUESTION_LENGTH,
   buildSystemPrompt,
   extractAnswerText,
+  pickAnswer,
   sanitizeAnswer,
   validateQuestion,
 } from "./rinyaPrompt";
@@ -140,5 +141,28 @@ describe("sanitizeAnswer", () => {
       "Astro と React で作っています（TypeScript / SCSS）。",
     );
     expect(sanitizeAnswer("1 < 2 なので x > y ではありません。")).toBe("1 < 2 なので x > y ではありません。");
+  });
+});
+
+describe("pickAnswer", () => {
+  it("通常の回答を整形して返す", () => {
+    expect(pickAnswer({ choices: [{ message: { content: " 二郎です " } }] })).toBe("二郎です");
+    expect(pickAnswer({ response: "二郎です<turn|>" })).toBe("二郎です");
+  });
+
+  it("取り出せない形では null を返す", () => {
+    expect(pickAnswer(null)).toBeNull();
+    expect(pickAnswer({})).toBeNull();
+    expect(pickAnswer({ choices: [] })).toBeNull();
+  });
+
+  it("整形の結果が空になる回答は null を返す（固定Q&Aへ落とすため）", () => {
+    // モデルが制御トークンだけを返すことがある（実測で `<turn|>`）。
+    // extractAnswerText は非nullを返すが sanitizeAnswer が空になるので、ここで null にする。
+    expect(extractAnswerText({ response: "<turn|>" })).toBe("<turn|>");
+    expect(sanitizeAnswer("<turn|>")).toBe("");
+    expect(pickAnswer({ response: "<turn|>" })).toBeNull();
+    expect(pickAnswer({ response: "<start_of_turn><end_of_turn>" })).toBeNull();
+    expect(pickAnswer({ choices: [{ message: { content: "<turn|>" } }] })).toBeNull();
   });
 });

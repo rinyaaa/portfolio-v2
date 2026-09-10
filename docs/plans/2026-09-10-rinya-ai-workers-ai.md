@@ -58,6 +58,22 @@
 ### CI / ビルド
 
 - [x] Cloudflare の認証情報が無い環境（CI）でも `npm run build` が通る … `astro.config.mjs` の `remoteBindings` を既定 false にする。true だとプリレンダリング時にリモート接続を張り `Failed to start the remote proxy session` でビルドが落ちる
+  - **検証方法**（設定変更だけでは証明にならないため実際に実行した）：
+    `env -u CLOUDFLARE_API_TOKEN -u CLOUDFLARE_ACCOUNT_ID XDG_CONFIG_HOME=<空dir> WRANGLER_HOME=<空dir> HOME=<空dir> npm run build`
+    → **exit 0 / リモート接続試行 0回**。変更前は同じコマンドで exit 1（`Failed to start the remote proxy session`）になることも確認済み
+
+## 対応しないと決めたこと（CodeRabbit 指摘への回答・2026-09-10）
+
+**`Origin` ヘッダによる同一オリジン判定はボット対策にならない**（非ブラウザのクライアントは `Origin: https://nenex.me` を偽装でき、IPを変えればレート制限も回避できる）。指摘は技術的に正しい。
+CodeRabbit の提案は Turnstile の追加だったが、**今は入れない**と判断した。
+
+- **前提：Cloudflare アカウントは Workers Free プラン**（2026-09-10 に本人確認済み）。無料枠 10,000 Neurons/日 の超過は**課金ではなくエラー**になるため、悪用されても金銭被害は発生しない。最悪ケースは「その日 rinyaAI が答えられない」（00:00 UTC にリセット）という可用性の問題に留まる
+- 一方 Turnstile はシークレット鍵を1つ増やす（「APIキーを置かない」という本構成の利点を崩す）うえ、訪問者全員に検証の手間をかける。被害の大きさに対して割に合わない
+
+### ⚠️ この判断が崩れる条件
+
+**Workers を Paid プランに変えたら、この判断は無効になる。** Paid では無料枠の超過分が $0.011/1,000 Neurons で**自動課金され、止まらない**（1問 ≒ 21 Neurons なので100万リクエストで約 $220）。
+プランを上げるときは、rinyaAI に次のどちらかを**必ず**先に入れること：Turnstile によるボット検証、または KV の日次カウンタによる「サイト全体で1日N問まで」の自前上限。
 
 ## 実装上の判断（後から迷わないためのメモ）
 

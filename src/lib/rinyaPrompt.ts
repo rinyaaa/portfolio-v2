@@ -104,3 +104,19 @@ export function sanitizeAnswer(text: string): string {
   if (cleaned.length <= MAX_ANSWER_LENGTH) return cleaned;
   return `${cleaned.slice(0, MAX_ANSWER_LENGTH)}…`;
 }
+
+/**
+ * Workers AI のレスポンスから表示できる回答を取り出す。取り出せなければ `null`。
+ *
+ * 整形の結果が空になる場合も `null` を返す。モデルが制御トークンだけを返すこと（実測で `<turn|>`）が
+ * あり、そのとき `extractAnswerText` は非nullを返すのに `sanitizeAnswer` が空文字になる。
+ * 空文字をそのまま返すと API は `source: "ai"` の空回答を返し、UI側が空を弾いてエラー表示になる
+ * ——固定Q&Aへのフォールバックが働かない。呼び出し側が1回の判定で済むようここにまとめる。
+ */
+export function pickAnswer(raw: unknown): string | null {
+  const text = extractAnswerText(raw);
+  if (text === null) return null;
+
+  const sanitized = sanitizeAnswer(text);
+  return sanitized === "" ? null : sanitized;
+}

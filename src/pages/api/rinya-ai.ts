@@ -4,13 +4,7 @@ import { RINYA_PERSONA } from "../../data/rinya-persona";
 import { RINYA_QA } from "../../data/rinya-qa";
 import { findRinyaAnswer } from "../../lib/rinyaAi";
 import { isSameOriginRequest } from "../../lib/rinyaRequest";
-import {
-  MAX_ANSWER_TOKENS,
-  buildSystemPrompt,
-  extractAnswerText,
-  sanitizeAnswer,
-  validateQuestion,
-} from "../../lib/rinyaPrompt";
+import { MAX_ANSWER_TOKENS, buildSystemPrompt, pickAnswer, validateQuestion } from "../../lib/rinyaPrompt";
 
 /** このエンドポイントだけ静的化せず、リクエストごとに Worker 上で実行する。 */
 export const prerender = false;
@@ -41,20 +35,26 @@ function json(body: { answer: string; source: AnswerSource } | { error: string }
   });
 }
 
+/** レート制限の判定結果。`unavailable` は「制限が働かないので AI は呼ばない」を意味する。 */
+type RateLimitResult = "ok" | "limited" | "unavailable";
+
 /**
  * 1つのIPが無料枠を使い切らないようにする入口制限（`wrangler.jsonc` の `ratelimits`）。
- * バインディングが無い環境（ローカルの一部構成）では制限なしで通す。
+ *
+ * 制限が判定できないとき（バインディングが無い / `limit()` が例外）は `unavailable` を返し、
+ * 呼び出し側は AI を呼ばず固定Q&Aで応答する。**ここを「制限なしで通す」にしてはいけない**——
+ * 制限が壊れている間に連続リクエストを受けると無料枠を使い切り、rinyaAI 自体が答えられなくなる。
  */
-async function withinRateLimit(request: Request): Promise<boolean> {
+async function checkRateLimit(request: Request): Promise<RateLimitResult> {
   const limiter = env.RINYA_AI_RATE_LIMITER;
-  if (!limiter) return true;
+  if (!limiter) return "unavailable";
 
   const key = request.headers.get("cf-connecting-ip") ?? "unknown";
   try {
     const { success } = await limiter.limit({ key });
-    return success;
+    return success ? "ok" : "limited";
   } catch {
-    return true; // 制限の失敗で機能を落とさない
+    return "unavailable";
   }
 }
 
@@ -83,11 +83,16 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: validated.reason }, status);
   }
 
-  if (!(await withinRateLimit(request))) {
+  const fallback = () => json({ answer: findRinyaAnswer(validated.question, RINYA_QA), source: "fallback" }, 200);
+
+  const rateLimit = await checkRateLimit(request);
+  if (rateLimit === "limited") {
     return json({ error: "rate_limited" }, 429);
   }
-
-  const fallback = () => json({ answer: findRinyaAnswer(validated.question, RINYA_QA), source: "fallback" }, 200);
+  if (rateLimit === "unavailable") {
+    // 制限が働かない状態で AI を呼ぶと無料枠を使い切られるため、定型文で応答する
+    return fallback();
+  }
 
   if (!env.AI) {
     // ローカルで Workers AI に接続できていない場合（`wrangler login` 前など）
@@ -108,10 +113,11 @@ export const POST: APIRoute = async ({ request }) => {
       chat_template_kwargs: { enable_thinking: false },
     });
 
-    const answer = extractAnswerText(result);
+    // 整形後が空になる場合（制御トークンだけの回答など）も null になり、固定Q&Aへ落ちる
+    const answer = pickAnswer(result);
     if (answer === null) return fallback();
 
-    return json({ answer: sanitizeAnswer(answer), source: "ai" }, 200);
+    return json({ answer, source: "ai" }, 200);
   } catch (error) {
     // 質問文は出さない。原因の切り分けに必要な情報だけ残す。
     console.error("rinya-ai: Workers AI の呼び出しに失敗", error instanceof Error ? error.name : "unknown");
