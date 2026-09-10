@@ -33,8 +33,9 @@ PR #50 / #52 / #54 が短期間に連続でマージされ、rinyaAI・心拍ウ
 6. **`--text-muted` (#7a7a7a) の白背景コントラストが約4.29:1でWCAG AA（4.5:1）未達**（[#60](https://github.com/rinyaaa/portfolio-v2/issues/60)）
    サイト全体で補助文字色として広く使われているトークンなので影響範囲が広い。
 
-7. **ジャンルフィルタとヘッダーナビのタッチターゲットが44px未満**（[#61](https://github.com/rinyaaa/portfolio-v2/issues/61)）
-   `GenreFilter.module.scss` の `.chip`（実測高さ約30px）、`Header.module.scss` の `.link`（約36px）に `min-height` が無い。`RinyaAiChat.module.scss` は `.suggestion`/`.retry`/`.send` に44pxを明示しており、対応が一貫していない。
+7. **ジャンルフィルタのタッチターゲットが44px未満**（[#61](https://github.com/rinyaaa/portfolio-v2/issues/61)）
+   `GenreFilter.module.scss` の `.chip`（実測高さ約30px）に `min-height` が無い。`RinyaAiChat.module.scss` は `.suggestion`/`.retry`/`.send` に44pxを明示しており、対応が一貫していない。
+   （起票時は `Header.module.scss` の `.link` も対象にしていたが、レビューで `body` の `line-height: 1.7` の継承を見落としていたと判明し、実測は約44.6pxで基準をほぼ満たすため対象から外した。issue本文に訂正を追記済み。）
 
 ### 不要なコード
 
@@ -49,6 +50,7 @@ PR #50 / #52 / #54 が短期間に連続でマージされ、rinyaAI・心拍ウ
 
 - ブラウザ・Figmaが見られない制約下で「見た目の良し悪し」を切り分けるため、コントラスト比とタッチターゲットは手計算・CSS値からの実測に限定した。
 - コントラスト計算はWCAG相対輝度式を手計算したもの（自動チェッカーでの再確認を推奨）。
+- タッチターゲットの高さ計算で、`line-height` の継承（`body { line-height: 1.7 }`）を見落として `Header.module.scss` の `.link` を誤って「44px未満」と判定していた（レビューで指摘され#61から対象外に訂正）。line-heightが要素側で明示されていない場合は継承元まで辿って計算する必要がある。
 
 ## 次回への申し送り
 
