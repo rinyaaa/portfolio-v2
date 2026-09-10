@@ -1,6 +1,7 @@
 ---
 import "../styles/global.scss";
 import Header from "../components/Header.astro";
+import { ALTERNATE_NAMES, PROFILE_FULL_NAME, SNS_ACCOUNTS, UNIVERSITY } from "../data/profile";
 
 const {
   title = "nenex — Portfolio",
@@ -12,18 +13,14 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "石丸凜弥",
-  alternateName: ["りんや", "いしまる", "nenex", "ねねっくす"],
+  name: PROFILE_FULL_NAME,
+  alternateName: ALTERNATE_NAMES,
   url: "https://nenex.me",
   affiliation: {
     "@type": "CollegeOrUniversity",
-    name: "愛知工業大学",
+    name: UNIVERSITY,
   },
-  sameAs: [
-    "https://github.com/rinyaaa",
-    "https://x.com/r2e8l",
-    "https://instagram.com/rinya_7",
-  ],
+  sameAs: SNS_ACCOUNTS.map((account) => account.url),
 };
 ---
 

@@ -44,10 +44,11 @@
 | UI（アクセシビリティ） | **React Aria Components**（`react-aria-components`） | ヘッドレス（スタイル無し）でアクセシブルな挙動だけを提供。見た目は CSS Modules で当てる。フル UI ライブラリのような重いランタイムを持ち込まない。 |
 | スタイリング | **SCSS Modules**（`*.module.scss` / `sass`） | Astro ネイティブ対応。ビルド時に純 CSS 化＆スコープ化されるので初回 JS が増えない。ネスト等が使える SCSS で記述。グローバルは `src/styles/global.scss`。React Aria の無地コンポーネントに見た目を付ける担当。 |
 | 言語 | **TypeScript**（strict） | microCMS API レスポンスの型安全と、整形ロジックのテスト容易性。 |
-| コンテンツ取得 | **microCMS REST API**（ビルド時 fetch） | ビルド時に全記事を取得して静的化。実行時の API 依存ゼロ。 |
+| コンテンツ取得 | **microCMS REST API**（ビルド時 fetch） | ビルド時に全記事を取得して静的化。記事に関しては実行時の API 依存ゼロ（実行時に動くのは心拍ウィジェットと rinyaAI の2つだけ。下記参照）。 |
 | 本文描画 | microCMS リッチエディタの **HTML** をそのまま描画 | 変換不要で確実（後述）。 |
 | ホスティング | **Cloudflare Pages**（static） | 高速 CDN・広い無料枠。Deploy Hook で再ビルド起動。 |
 | CI/CD トリガ | **microCMS Webhook → Cloudflare Deploy Hook** | 中継サーバ不要。URL を叩くだけで再ビルド→配信。 |
+| rinyaAI の回答生成 | **Cloudflare Workers AI**（`ai` バインディング / `src/pages/api/rinya-ai.ts`） | APIキー不要（バインディング経由）。Workers Free の無料枠 10,000 Neurons/日 を超えると課金ではなくエラーになるため、費用の上限がプラン側で閉じている。 |
 
 ### なぜ Next.js ではなく Astro か
 ポートフォリオは「ほぼ静的・一部だけ動的」。Astro は island architecture により
@@ -154,6 +155,21 @@ Dialog などに使う。
 - 将来コードハイライトや独自整形が欲しくなったら、body の HTML を rehype で後処理するか、
   Markdown 運用へ切替える。HTML 依存は `src/lib/microcms.ts` に閉じ込め、上位から差し替え可能に。
 
+### 4.5 実行時に動く部分（静的化の例外）
+
+サイトは基本的に静的だが、以下の2つだけ実行時に動く。増やすときはここに追記する。
+
+- **心拍ウィジェット**（`src/components/HeartRate.tsx`）… クライアントから `https://api.nenex.me/health` を fetch。
+- **rinyaAI**（`src/pages/api/rinya-ai.ts`、`export const prerender = false`）… Worker 上で Cloudflare Workers AI を呼ぶ。
+  - モデルは `RINYA_AI_MODEL` の1行を差し替えれば変更できる（レスポンス形式の違いは `extractAnswerText` が OpenAI互換 `choices[]` と旧来 `{response}` の両方に対応して吸収する）。
+  - 人格データは `src/data/rinya-persona.ts`。**口調ルール・発言例は本人提供のものだけを入れる**（§9.3）。未提供のうちは空配列のままにし、その場合は本人の口調を装わず中立的な丁寧語で答える。
+  - `facts`（回答の根拠）は「本人が提供しサイト上で公開済みの事実」だけを、表示側の元データ（`src/data/profile.ts` / `skill-labels.ts` / `birthday.ts`）から直接 import して組み立てる。**表示とAIで同じ事実を二重管理しない。**
+  - 守り：同一オリジンのみ受付 / 質問文200文字まで / IP毎 10回/分（`ratelimits` バインディング）/ 会話履歴を送らない1問1答 / **質問文をログに出さない**（`observability` 有効なので Workers Logs に載ってしまう）/ Workers AI がエラー・無料枠超過なら固定Q&A（`src/data/rinya-qa.ts`）へフォールバック。
+  - **`astro.config.mjs` の `remoteBindings` は既定 false のままにする。** true にすると `astro build` のプリレンダリング時に Cloudflare へリモート接続を張り、認証情報が無い CI でビルドが落ちる（`Failed to start the remote proxy session`）。ローカルで実物の生成を試すときだけ `npx wrangler login && CLOUDFLARE_REMOTE_BINDINGS=true npm run dev`（ローカルからでも本物を呼ぶので無料枠を消費する）。
+  - バインディングを追加・変更したら `npx wrangler types`（= `npm run generate-types`）で `worker-configuration.d.ts` を再生成する。
+    この生成物は**コミットする**——`tsconfig.json` が参照しており、無いと `astro check` が `env.AI` を解決できず
+    「型が無いから `any` にする」という誤った直し方を誘発するため。**手で編集しない**（次の再生成で消える）。
+
 ---
 
 ## 5. ディレクトリ構成（予定）
@@ -221,6 +237,11 @@ portfolio/
 - ロジック（取得・整形・ソート）と表示（Astro/React）を分離する。
 - インタラクティブが不要なものは `.astro`（= JS を送らない）で書く。React island は
   本当に必要な箇所だけにし、`client:load` の濫用を避ける（`client:visible` を優先）。
+  - **例外：中身が `position: fixed` の island に `client:visible` を使わない。** Astro は
+    `astro-island{display:contents}` なので観測対象のボックスを持たず、島は通常フローの最下部に
+    高さ0で置かれる。結果、最下部までスクロールするまで hydration されず「ボタンは見えているのに
+    押しても無反応」になる（rinyaAI の導線ピルで実際に発生）。常時見えていて初回描画を
+    ブロックしたくないものは `client:idle` を使う。
 - 純粋関数（整形・ソート）には必ずテストを添える。
 - microCMS の仕様（コンテンツ定義・フィールド）を変える場合は本ファイルを更新してから実装する。
 - **UI/デザインを実装・変更する前は必ずFigmaを見る**（下記9.1）。見た目に関わるタスクをFigma未確認のまま実装しない。

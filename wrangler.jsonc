@@ -8,6 +8,28 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	// rinyaAI の回答生成。APIキー不要（バインディング経由で env.AI として使える）。
+	// Workers Free プランでは無料枠 10,000 Neurons/日 を超えると課金ではなくエラーになるため、
+	// 費用の上限はプラン側で自動的に閉じている（超過時は固定Q&Aへフォールバックする）。
+	// Workers AI は常にリモート（実物のCloudflare）を呼ぶバインディングなので、
+	// ビルド/開発時に接続を張らせないための切り替えは astro.config.mjs の
+	// `remoteBindings` 側で行う（ここに `remote: false` を書いても接続は止まらない）。
+	"ai": {
+		"binding": "AI"
+	},
+	// 1つのIPが無料枠を使い切らないようにするための入口制限（period は 10 か 60 のみ指定可）。
+	// 費用の上限自体は Workers Free プランの無料枠が握っている（超過は課金ではなくエラー）ので、
+	// ここは「1人が独占しないための公平性」の設定。超過時は 429 を返し、UIで待つよう案内する。
+	"ratelimits": [
+		{
+			"name": "RINYA_AI_RATE_LIMITER",
+			"namespace_id": "1001",
+			"simple": {
+				"limit": 10,
+				"period": 60
+			}
+		}
+	],
 	"observability": {
 		"enabled": true
 	}

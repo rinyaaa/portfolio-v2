@@ -1,4 +1,5 @@
 import logos from "@iconify-json/logos/icons.json";
+import { ICON_NAMES, SKILL_LABELS } from "./skill-labels";
 
 /** Home の Skill セクションに表示する技術（静的ハードコード。CMS管理化はスコープ外）。
  * アイコンは @iconify-json/logos のJSONデータから直接読む(JSONインポートなのでCJSは絡まない)。
@@ -8,36 +9,6 @@ export type Skill = {
   name: string;
   viewBox: string;
   svg: string;
-};
-
-const ICON_NAMES = [
-  "html-5",
-  "css-3-official",
-  "javascript",
-  "typescript-icon",
-  "react",
-  "nextjs-icon",
-  "react-router",
-  "threejs",
-  "astro-icon",
-  "kotlin-icon",
-  "nodejs-icon",
-  "flutter",
-] as const;
-
-const LABELS: Record<(typeof ICON_NAMES)[number], string> = {
-  "html-5": "HTML",
-  "css-3-official": "CSS",
-  javascript: "JavaScript",
-  "typescript-icon": "TypeScript",
-  react: "React",
-  "nextjs-icon": "Next.js",
-  "react-router": "React Router",
-  threejs: "Three.js",
-  "astro-icon": "Astro",
-  "kotlin-icon": "Kotlin(サーバーサイド)",
-  "nodejs-icon": "Node.js",
-  flutter: "Flutter",
 };
 
 function loadIcon(iconName: string) {
@@ -53,6 +24,6 @@ function loadIcon(iconName: string) {
 }
 
 export const skills: Skill[] = ICON_NAMES.map((iconName) => ({
-  name: LABELS[iconName],
+  name: SKILL_LABELS[iconName],
   ...loadIcon(iconName),
 }));

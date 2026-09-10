@@ -21,5 +21,9 @@ import RinyaAiChat from "../components/RinyaAiChat";
   <Awards />
   <BirthdayCountdown />
   <ConnectLinks />
-  <RinyaAiChat client:visible />
+  {/* client:visible は使えない：中身が position:fixed のため astro-island 自体が高さ0で
+      ドキュメント最下部に置かれ、最下部までスクロールするまで hydration されない
+      （ボタンは fixed で最初から見えているので「押せるのに無反応」になる）。
+      初回表示をブロックしない client:idle にする。 */}
+  <RinyaAiChat client:idle />
 </Base>
