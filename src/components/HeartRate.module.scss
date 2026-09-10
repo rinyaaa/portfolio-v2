@@ -1,7 +1,14 @@
+/* 他セクション（Profile / Skill / New Post ...）と同じ外枠・上余白に揃える */
+.section {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 48px) 24px 0;
+}
+
 .pill {
   display: flex;
   width: fit-content;
-  max-width: calc(100vw - 32px);
+  max-width: 100%;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;

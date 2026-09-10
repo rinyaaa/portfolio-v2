@@ -52,24 +52,26 @@ export default function HeartRate() {
   }, []);
 
   return (
-    <div className={styles.pill}>
-      <span className={styles.icon} aria-hidden="true">
-        ♥
-      </span>
-      <span className={styles.value} aria-live="polite">
-        {state.status === "loading" && "…"}
-        {state.status === "ok" && (
-          <>
-            {state.heartRate}
-            <span className={styles.unit}>bpm</span>
-            {state.measuredAt && <span className={styles.measuredAt}>（{state.measuredAt}時点）</span>}
-          </>
-        )}
-        {state.status === "unavailable" && <span className={styles.unavailable}>取得できませんでした</span>}
-      </span>
-      <a className={styles.link} href={ALIVE_URL} target="_blank" rel="noopener noreferrer">
-        alive.nenex.me →
-      </a>
+    <div className={styles.section}>
+      <div className={styles.pill}>
+        <span className={styles.icon} aria-hidden="true">
+          ♥
+        </span>
+        <span className={styles.value} aria-live="polite">
+          {state.status === "loading" && "…"}
+          {state.status === "ok" && (
+            <>
+              {state.heartRate}
+              <span className={styles.unit}>bpm</span>
+              {state.measuredAt && <span className={styles.measuredAt}>（{state.measuredAt}時点）</span>}
+            </>
+          )}
+          {state.status === "unavailable" && <span className={styles.unavailable}>取得できませんでした</span>}
+        </span>
+        <a className={styles.link} href={ALIVE_URL} target="_blank" rel="noopener noreferrer">
+          alive.nenex.me →
+        </a>
+      </div>
     </div>
   );
 }
