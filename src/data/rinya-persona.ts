@@ -22,12 +22,20 @@ export type RinyaPersona = {
   toneRules: string[];
   /** 回答の根拠にできる事実。ここに無いことは「分からない」と答えさせる。 */
   facts: string[];
-  /** 本人の実際の言い回しを学ばせるための例。**本人提供待ちのため空**。 */
-  examples: { question: string; answer: string }[];
+  /**
+   * 本人の実際の言い回しを学ばせるための例。**本人提供のものだけを入れる**。
+   * `question` は任意——質問文が無くても「回答文そのもの」が口調の見本になるため、
+   * microCMS 側で `question` を空にしたレコードも捨てずに使う。
+   */
+  examples: { question?: string; answer: string }[];
 };
 
 const profileFacts = PROFILE_ITEMS.map((item) => `${item.label}：${item.value}`);
 
+/**
+ * サイト表示済みの事実だけで組み立てた既定の人格データ。
+ * CMS が未作成・未設定・取得失敗のときはこれがそのまま使われる（＝現状と同じ挙動）。
+ */
 export const RINYA_PERSONA: RinyaPersona = {
   toneRules: [],
   facts: [
@@ -40,3 +48,23 @@ export const RINYA_PERSONA: RinyaPersona = {
   ],
   examples: [],
 };
+
+/**
+ * 既定の人格データに、microCMS 由来の口調ルールと非公開の事実を重ねる。
+ *
+ * - `toneRules` … CMS の内容で**置き換える**（既定は空なので実質「入れる」）
+ * - `privateFacts` … 既定の `facts`（サイト表示済み）の**後ろに足す**。
+ *   サイトに表示していない事実はここから来る。表示済みの事実を CMS 側で二重管理しないため。
+ * - CMS が空なら既定値のまま返る（＝口調を装わない中立的な回答になる）
+ */
+export function withCmsPersona(
+  base: RinyaPersona,
+  cms: { toneRules: string[]; privateFacts: string[] },
+  examples: RinyaPersona["examples"] = [],
+): RinyaPersona {
+  return {
+    toneRules: cms.toneRules,
+    facts: [...base.facts, ...cms.privateFacts],
+    examples,
+  };
+}

@@ -11,3 +11,4 @@
 <!-- 計画書を追加したら1行追記する -->
 
 - [2026-09-10 rinyaAI の回答生成を Cloudflare Workers AI で実装](2026-09-10-rinya-ai-workers-ai.md) — issue #47。方式（固定Q&A / LLM）の決定と、導線ピルの見た目・守り（レート制限・同一オリジン・費用上限）の受け入れ条件
+- [2026-09-10 rinyaAI の人格データを microCMS へ移す](2026-09-10-rinya-persona-microcms.md) — issue #53。口調データを Public リポジトリに置かずに済むようにする前提工事。スキーマ・ビルド時焼き込みの方針・データ投入の役割分担

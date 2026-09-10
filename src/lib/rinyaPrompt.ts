@@ -45,9 +45,15 @@ export function buildSystemPrompt(persona: RinyaPersona): string {
   }
 
   if (persona.examples.length > 0) {
+    // 質問文があれば Q&A の対で、無ければ回答文だけを見本として並べる。
+    // 回答文単体でも口調（語尾・一人称）は十分伝わるため捨てない。
     sections.push(
-      `# 本人の言い回しの例\n${persona.examples
-        .map((example) => `Q: ${example.question}\nA: ${example.answer}`)
+      `# 本人の言い回しの例（この口調を真似る）\n${persona.examples
+        .map((example) =>
+          example.question && example.question.trim() !== ""
+            ? `Q: ${example.question}\nA: ${example.answer}`
+            : `- ${example.answer}`,
+        )
         .join("\n\n")}`,
     );
   }
