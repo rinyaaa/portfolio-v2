@@ -1,7 +1,7 @@
 .section {
   max-width: var(--content-width);
   margin-inline: auto;
-  padding: clamp(32px, 6vw, 48px) 24px clamp(48px, 8vw, 80px);
+  padding: clamp(32px, 6vw, 48px) 24px 0;
 }
 
 .grid {

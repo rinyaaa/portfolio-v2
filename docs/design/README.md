@@ -13,6 +13,7 @@ night-run（Dockerサンドボックス）からも Figma は見えないため�
 | `03-rinyaai-chat-states.jpg` | `276:91` rinyaAI — チャット状態 | [#47](https://github.com/rinyaaa/portfolio-v2/issues/47) |
 | `04-card-back-web.jpg` | `268:54` 名刺 裏 — Web版 | [#48](https://github.com/rinyaaa/portfolio-v2/issues/48) |
 | `05-card-flip-spec.jpg` | `272:102` 名刺フリップ — 操作仕様 | [#48](https://github.com/rinyaaa/portfolio-v2/issues/48) |
+| `06-rinyaai-pill.png` | rinyaAI 導線（画面右下に固定）のピル | [#47](https://github.com/rinyaaa/portfolio-v2/issues/47)。**PNG書き出しなのでピクセル実測が可能**（枠線2px `#f9b6dc` / 地 `#ffffff` / 文字 `#202020` / 高さ84px / 丸60px / 左12px・間隔16px・右30px / 文字22px）。実装は `src/components/RinyaAiChat.module.scss`。**デザインと意図的に違う点2つ**（どちらも「84pxは大きすぎる」という本人指示・2026-09-10）：① 全体の高さ 84px → **50px**（従来サイズ）、② 文字サイズは比率から外して **0.95rem（≒15.2px）**固定 — 比率どおり（0.25×高さ）だと12.5pxになり日本語が読みにくいため。そのため文字/高さの比はデザイン0.25に対し実装0.30。**配色（枠線・地・文字）と、丸・左余白・間隔・右余白の比率はデザインどおり** |
 
 ## PDF原本を置いていない理由
 

@@ -1,13 +1,8 @@
 ---
 import styles from "./Profile.module.scss";
+import { PROFILE_ITEMS, PROFILE_NAME } from "../data/profile";
 
-const info = [
-  { label: "大学", value: "愛知工業大学" },
-  { label: "所属", value: "シス研・梶研究室 / NxTEND / FORGERS" },
-  { label: "開発", value: "Webフルスタック開発" },
-  { label: "趣味", value: "旅行 / 絶叫系 / イベント運営 / 二郎" },
-  { label: "一言", value: "ポートフォリオ制作頑張ります！" },
-];
+const info = PROFILE_ITEMS;
 ---
 
 <section class={styles.section}>
@@ -24,7 +19,7 @@ const info = [
     </div>
 
     <div class={styles.body}>
-      <h3 class={styles.name}>石丸凜弥（nenex）</h3>
+      <h3 class={styles.name}>{PROFILE_NAME}</h3>
       <dl class={styles.info}>
         {
           info.map((item) => (

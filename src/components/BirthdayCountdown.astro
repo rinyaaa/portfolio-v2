@@ -1,0 +1,52 @@
+---
+import { BIRTHDAY } from "../data/birthday";
+import styles from "./BirthdayCountdown.module.scss";
+
+const dateLabel = `${BIRTHDAY.month}/${BIRTHDAY.day}`;
+---
+
+<section class={styles.section}>
+  <h2 class="section-title">Birthday</h2>
+  <div
+    class={styles.card}
+    data-birthday-month={BIRTHDAY.month}
+    data-birthday-day={BIRTHDAY.day}
+  >
+    <div class={styles.dateBlock}>
+      <span class={styles.label}>誕生日</span>
+      <span class={styles.date}>{dateLabel}</span>
+    </div>
+    <p
+      class={styles.countdown}
+      data-birthday-countdown
+      data-celebration-class={styles.celebration}
+      aria-live="polite"
+    >
+      <span class={styles.prefix}>あと</span>
+      <span class={styles.days} data-birthday-days>–</span>
+      <span class={styles.unit}>日</span>
+    </p>
+  </div>
+</section>
+
+<script>
+  import { daysUntilBirthday } from "../lib/birthday";
+
+  const card = document.querySelector<HTMLElement>("[data-birthday-month]");
+  const countdown = card?.querySelector<HTMLElement>("[data-birthday-countdown]");
+  const daysEl = card?.querySelector<HTMLElement>("[data-birthday-days]");
+
+  if (card && countdown && daysEl) {
+    const month = Number(card.dataset.birthdayMonth);
+    const day = Number(card.dataset.birthdayDay);
+    const days = daysUntilBirthday(new Date(), { month, day });
+
+    if (days === 0) {
+      const celebrationClass = countdown.dataset.celebrationClass;
+      if (celebrationClass) countdown.classList.add(celebrationClass);
+      countdown.textContent = "🎉 お誕生日おめでとう！";
+    } else {
+      daysEl.textContent = String(days);
+    }
+  }
+</script>
