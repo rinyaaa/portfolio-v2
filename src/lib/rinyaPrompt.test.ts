@@ -64,8 +64,8 @@ describe("buildSystemPrompt", () => {
   });
 
   it("口調データがあるときはそれを載せ、真似しない指示は出さない", () => {
-    const prompt = buildSystemPrompt({ ...basePersona, toneRules: ["語尾は「〜っす」"] });
-    expect(prompt).toContain("語尾は「〜っす」");
+    const prompt = buildSystemPrompt({ ...basePersona, toneRules: ["ルールA"] });
+    expect(prompt).toContain("ルールA");
     expect(prompt).not.toContain("推測して真似せず");
   });
 
@@ -79,6 +79,16 @@ describe("buildSystemPrompt", () => {
     expect(withExamples).toContain("言い回しの例");
     expect(withExamples).toContain("Q: 好きな食べ物は？");
     expect(withExamples).toContain("A: 二郎");
+  });
+
+  it("質問文が無い発言例も回答文だけを見本として載せる", () => {
+    // microCMS の `question` は任意フィールドなので、空のレコードが来る
+    for (const example of [{ answer: "回答A" }, { question: "", answer: "回答A" }, { question: "   ", answer: "回答A" }]) {
+      const prompt = buildSystemPrompt({ ...basePersona, examples: [example] });
+      expect(prompt).toContain("言い回しの例");
+      expect(prompt).toContain("- 回答A");
+      expect(prompt).not.toContain("Q: ");
+    }
   });
 });
 

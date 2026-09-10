@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
-import { RINYA_PERSONA } from "../../data/rinya-persona";
+import { getCollection, getEntry } from "astro:content";
+import { RINYA_PERSONA, withCmsPersona } from "../../data/rinya-persona";
 import { RINYA_QA } from "../../data/rinya-qa";
 import { findRinyaAnswer } from "../../lib/rinyaAi";
 import { isSameOriginRequest } from "../../lib/rinyaRequest";
@@ -23,6 +24,31 @@ const RINYA_AI_MODEL = "@cf/google/gemma-4-26b-a4b-it";
 const TEMPERATURE = 0.6;
 
 type AnswerSource = "ai" | "fallback";
+
+/**
+ * ビルド時に microCMS から焼き込んだ人格データを読む（実行時 fetch はしない）。
+ * CMS が未作成・未設定・取得失敗ならコレクションが空になり、コードの既定値がそのまま使われる。
+ */
+async function loadPersona() {
+  const entry = await getEntry("rinyaPersona", "singleton");
+  const qa = await getCollection("rinyaQa");
+  // `question` が空でも回答文が口調の見本になるので捨てない
+  const examples = qa.map((item) => ({ question: item.data.question, answer: item.data.answer }));
+
+  const persona = withCmsPersona(
+    RINYA_PERSONA,
+    {
+      toneRules: entry?.data.toneRules ?? [],
+      privateFacts: entry?.data.privateFacts ?? [],
+    },
+    examples,
+  );
+
+  // 固定Q&Aのフォールバックも CMS 由来を優先し、無ければコードの既定値（現状は空）を使う
+  const fallbackQa = qa.length > 0 ? qa.map((item) => item.data) : RINYA_QA;
+
+  return { persona, fallbackQa };
+}
 
 function json(body: { answer: string; source: AnswerSource } | { error: string }, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -83,7 +109,8 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: validated.reason }, status);
   }
 
-  const fallback = () => json({ answer: findRinyaAnswer(validated.question, RINYA_QA), source: "fallback" }, 200);
+  const { persona, fallbackQa } = await loadPersona();
+  const fallback = () => json({ answer: findRinyaAnswer(validated.question, fallbackQa), source: "fallback" }, 200);
 
   const rateLimit = await checkRateLimit(request);
   if (rateLimit === "limited") {
@@ -102,7 +129,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const result = await env.AI.run(RINYA_AI_MODEL, {
       messages: [
-        { role: "system", content: buildSystemPrompt(RINYA_PERSONA) },
+        { role: "system", content: buildSystemPrompt(persona) },
         { role: "user", content: validated.question },
       ],
       max_tokens: MAX_ANSWER_TOKENS,

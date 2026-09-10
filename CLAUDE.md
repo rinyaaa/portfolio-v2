@@ -155,6 +155,33 @@ Dialog などに使う。
 - 将来コードハイライトや独自整形が欲しくなったら、body の HTML を rehype で後処理するか、
   Markdown 運用へ切替える。HTML 依存は `src/lib/microcms.ts` に閉じ込め、上位から差し替え可能に。
 
+### 4.4.1 rinyaAI の人格データ（`rinya-persona` / `rinya-qa`）
+
+記事とは別に、rinyaAI が使う人格データも microCMS で管理する（issue #53）。**Public リポジトリに口調データを置かないため**の構成。
+
+**`rinya-persona`（オブジェクト形式・1レコード）**
+
+| フィールドID | 種類 | 用途 |
+| --- | --- | --- |
+| `toneRules` | テキストエリア | 口調ルール。**1行1ルール**（語尾・一人称・砕け具合） |
+| `privateFacts` | テキストエリア | **サイトに表示しない**が AI だけが知る事実。**1行1件** |
+
+**`rinya-qa`（リスト形式）**
+
+| フィールドID | 種類 | 必須 | 用途 |
+| --- | --- | --- | --- |
+| `keyword` | テキストフィールド | ✅ | マッチ用。短くする（「食べ物」など） |
+| `question` | テキストフィールド | | few-shot の質問文。**任意**（空なら回答文だけを見本にする） |
+| `answer` | テキストエリア | ✅ | **本人の口調で完結した文**。few-shot の見本 ＋ AI 失敗時のフォールバックを兼ねる |
+
+- `answer` は「そのまま返信として成立する文」にする。単語を並べただけ（`A，B` のような列挙）を入れると口調の見本にならず、フォールバックで返ったときも返信として不自然になる。**事実は `privateFacts` に置く**
+- **CMS に入っている実際の値（`toneRules` / `privateFacts` / `rinya-qa` の `answer`）を、このファイルやコードのコメント・テストに転記しない**（Public リポジトリに人格データを置かないのが本構成の目的）。
+  テストのフィクスチャは `ルールA` `事実X` のような架空の値を使う。**サイトに表示済みの事実**（`src/data/profile.ts` の大学・趣味など）は公開情報なので使ってよい。
+- Hobby プランの API 上限は5個。`posts` / `categories` / `rinya-persona` / `rinya-qa` で**4個使用（残1個）**
+- **`rinya-qa` はリスト形式で作る。** オブジェクト形式で作ると `contents` が返らず Q&A が0件になる（作成後に型は変更できないので作り直しになる）
+- **Webhook は API ごとに設定**が必要（Deploy Hook の URL は1つを使い回せる）。設定しないと CMS を直しても再ビルドされない
+- 実測仕様：**値が空のフィールドはレスポンスから消える**（`""` ではなくキー自体が無い）。正規化は `undefined` 前提で書く
+
 ### 4.5 実行時に動く部分（静的化の例外）
 
 サイトは基本的に静的だが、以下の2つだけ実行時に動く。増やすときはここに追記する。
@@ -162,7 +189,10 @@ Dialog などに使う。
 - **心拍ウィジェット**（`src/components/HeartRate.tsx`）… クライアントから `https://api.nenex.me/health` を fetch。
 - **rinyaAI**（`src/pages/api/rinya-ai.ts`、`export const prerender = false`）… Worker 上で Cloudflare Workers AI を呼ぶ。
   - モデルは `RINYA_AI_MODEL` の1行を差し替えれば変更できる（レスポンス形式の違いは `extractAnswerText` が OpenAI互換 `choices[]` と旧来 `{response}` の両方に対応して吸収する）。
-  - 人格データは `src/data/rinya-persona.ts`。**口調ルール・発言例は本人提供のものだけを入れる**（§9.3）。未提供のうちは空配列のままにし、その場合は本人の口調を装わず中立的な丁寧語で答える。
+  - 人格データは **microCMS（§4.4.1）からビルド時に取得**し、Astro Content Layer（`src/content.config.ts`）経由で Worker のバンドルに焼き込む。`src/data/rinya-persona.ts` はコードの既定値（サイト表示済みの事実）とマージ関数 `withCmsPersona()` を持つ。
+    **口調ルール・発言例は本人提供のものだけを入れる**（§9.3）。CMS が未作成・未設定・取得失敗なら既定値のまま＝本人の口調を装わず中立的な丁寧語で答え、**ビルドは落とさず警告を出す**（気づけるように）。
+  - ⚠️ **`privateFacts` はシステムプロンプトに載るため、プロンプトインジェクションで漏れる可能性が残る**（rinyaAI 実装時のセキュリティレビューでも同じ結論）。**人に見られて困る内容は入れない。**
+  - 実行時に microCMS を叩かないことは成果物で保証されている：`src/lib/microcms.ts` はビルド時専用のためツリーシェイクされ、**Worker バンドルに `microcms.io` の文字列が1つも無い**。`npx wrangler secret list` が空であることも確認済み（キーは Cloudflare のビルド環境変数のみ）。
   - `facts`（回答の根拠）は「本人が提供しサイト上で公開済みの事実」だけを、表示側の元データ（`src/data/profile.ts` / `skill-labels.ts` / `birthday.ts`）から直接 import して組み立てる。**表示とAIで同じ事実を二重管理しない。**
   - 守り：同一オリジンのみ受付 / 質問文200文字まで / IP毎 10回/分（`ratelimits` バインディング）/ 会話履歴を送らない1問1答 / **質問文をログに出さない**（`observability` 有効なので Workers Logs に載ってしまう）/ Workers AI がエラー・無料枠超過なら固定Q&A（`src/data/rinya-qa.ts`）へフォールバック。
     レート制限が判定できないとき（バインディング欠落・`limit()` の例外）も**AIを呼ばずフォールバックする**——ここを通してしまうと制限が壊れている間に無料枠を使い切られる。

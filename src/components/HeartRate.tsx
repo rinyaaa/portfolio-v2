@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import type { HealthResponse } from "../types/health";
-import { pickLatestHeartRate, formatJstTime } from "../lib/heartRate";
+import { pickLatestHeartRate } from "../lib/heartRate";
 import styles from "./HeartRate.module.scss";
 
 const HEALTH_API_URL = "https://api.nenex.me/health";
 const ALIVE_URL = "https://alive.nenex.me";
 const FETCH_TIMEOUT_MS = 8000;
 
-type State = { status: "loading" } | { status: "ok"; heartRate: number; measuredAt: string | null } | { status: "unavailable" };
+type State = { status: "loading" } | { status: "ok"; heartRate: number } | { status: "unavailable" };
 
 /**
  * 現在の心拍数を実行時fetchで表示する React island（client:visible）。
@@ -30,11 +30,7 @@ export default function HeartRate() {
         if (cancelled) return;
         const picked = pickLatestHeartRate(data);
         if (picked.status === "ok") {
-          setState({
-            status: "ok",
-            heartRate: picked.heartRate,
-            measuredAt: picked.isFallback ? formatJstTime(picked.recordedAt) : null,
-          });
+          setState({ status: "ok", heartRate: picked.heartRate });
         } else {
           setState({ status: "unavailable" });
         }
@@ -63,8 +59,7 @@ export default function HeartRate() {
             <>
               {state.heartRate}
               <span className={styles.unit}>bpm</span>
-              {state.measuredAt && <span className={styles.measuredAt}>（{state.measuredAt}時点）</span>}
-            </>
+              </>
           )}
           {state.status === "unavailable" && <span className={styles.unavailable}>取得できませんでした</span>}
         </span>

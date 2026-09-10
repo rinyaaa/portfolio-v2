@@ -1,6 +1,7 @@
 import { Fragment, useState, type SubmitEvent } from "react";
 import { DialogTrigger, Popover, Dialog, Button } from "react-aria-components";
 import { RINYA_QA } from "../data/rinya-qa";
+import { toAnswerSegments } from "../lib/linkify";
 import { MAX_QUESTION_LENGTH } from "../lib/rinyaPrompt";
 import styles from "./RinyaAiChat.module.scss";
 
@@ -110,14 +111,32 @@ export default function RinyaAiChat() {
         <Dialog className={styles.dialog} aria-label="rinyaAIチャット">
           <header className={styles.header}>
             <p className={styles.title}>rinyaAI</p>
-            <p className={styles.subtitle}>AI（Cloudflare Workers AI）が回答します。口調データは準備中です</p>
           </header>
 
           <div className={styles.messages} aria-live="polite">
             {messages.length === 0 && <p className={`${styles.bubble} ${styles.ai}`}>{GREETING}</p>}
             {messages.map((message, i) => (
               <Fragment key={i}>
-                <p className={`${styles.bubble} ${styles[message.role]}`}>{message.text}</p>
+                <p className={`${styles.bubble} ${styles[message.role]}`}>
+                  {message.role === "ai"
+                    ? // 本人のドメインだけリンクにする（AIが捏造したURLはリンクにしない。`linkify.ts` 参照）
+                      toAnswerSegments(message.text).map((segment, index) =>
+                        segment.type === "link" ? (
+                          <a
+                            key={index}
+                            className={styles.answerLink}
+                            href={segment.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {segment.value}
+                          </a>
+                        ) : (
+                          <Fragment key={index}>{segment.value}</Fragment>
+                        ),
+                      )
+                    : message.text}
+                </p>
                 {message.fromFallback && <p className={styles.status}>{FALLBACK_NOTE}</p>}
               </Fragment>
             ))}

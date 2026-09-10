@@ -93,12 +93,6 @@
   color: var(--heading);
 }
 
-.subtitle {
-  margin: 2px 0 0;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
 .messages {
   flex: 1 1 auto;
   min-height: 120px;
@@ -210,5 +204,20 @@
     background: var(--pink-soft);
     color: var(--text-muted);
     cursor: not-allowed;
+  }
+}
+
+/* 回答内のリンク。本人のドメインのみリンク化される（`src/lib/linkify.ts`）。
+   色は本文と同じ #202020 系に下線を付ける方式——ピンク系（#e2789f = 2.83:1）だと
+   白地でコントラスト3:1に届かず、色だけで区別する形になってしまうため。 */
+.answerLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
   }
 }
