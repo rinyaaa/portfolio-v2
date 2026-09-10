@@ -170,6 +170,12 @@ Dialog などに使う。
     `Origin` 判定は偽装可能でボット対策にはならないが、Free なら超過が課金ではなくエラーになるため被害は「その日答えられない」で止まる、という前提で
     Turnstile を入れない判断をしている（`docs/plans/2026-09-10-rinya-ai-workers-ai.md`）。**Paid に上げるなら、先に Turnstile か KV の日次上限を入れること。**
   - **`astro.config.mjs` の `remoteBindings` は既定 false のままにする。** true にすると `astro build` のプリレンダリング時に Cloudflare へリモート接続を張り、認証情報が無い CI でビルドが落ちる（`Failed to start the remote proxy session`）。ローカルで実物の生成を試すときだけ `npx wrangler login && CLOUDFLARE_REMOTE_BINDINGS=true npm run dev`（ローカルからでも本物を呼ぶので無料枠を消費する）。
+    - ⚠️ **この環境変数を切り替えて dev サーバを再起動したら、ブラウザをハードリロードする**（Cmd+Shift+R）。
+      Vite が「設定が変わった」と判断して依存を再最適化するため、ブラウザが古いハッシュの
+      `node_modules/.vite/deps/*.js?v=...` を掴んだままになり 404 → `Error hydrating` で
+      **島が動かなくなる**（「ボタンを押しても無反応」に見える）。実際に発生した。
+      切り分け方：`npx astro dev logs` にエラーが出ていればこのキャッシュ問題、出ていなければコードの問題。
+      直らないときは dev サーバ再起動 → それでも直らなければ `node_modules/.vite` を削除（人間が実行。AGENTS.md ルール1）。
   - バインディングを追加・変更したら `npx wrangler types`（= `npm run generate-types`）で `worker-configuration.d.ts` を再生成する。
     この生成物は**コミットする**——`tsconfig.json` が参照しており、無いと `astro check` が `env.AI` を解決できず
     「型が無いから `any` にする」という誤った直し方を誘発するため。**手で編集しない**（次の再生成で消える）。
