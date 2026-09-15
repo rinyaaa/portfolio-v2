@@ -21,11 +21,11 @@
     "@astrojs/sitemap": "^3.7.4",
     "@iconify-json/logos": "^1.2.13",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
+    "@types/react-dom": "^19.3.0",
     "astro": "^7.2.10",
     "react": "^19.2.8",
     "react-aria-components": "^1.19.0",
-    "react-dom": "^19.2.8",
+    "react-dom": "^19.3.0",
     "sass": "^1.104.0"
   },
   "devDependencies": {
