@@ -63,6 +63,14 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("推測して真似せず");
   });
 
+  it("断り方の文言をベタ書きせず、口調ルールに委ねる", () => {
+    // 文言を固定すると「話し方」より具体的な指示として勝ってしまい、口調データを入れても
+    // 「その情報は登録されていないので分かりません」と返ってしまう（実際に発生した）。
+    const prompt = buildSystemPrompt({ ...basePersona, toneRules: ["ルールA"] });
+    expect(prompt).not.toContain("その情報は登録されていないので分かりません");
+    expect(prompt).toContain("推測・創作せず");
+  });
+
   it("口調データがあるときはそれを載せ、真似しない指示は出さない", () => {
     const prompt = buildSystemPrompt({ ...basePersona, toneRules: ["ルールA"] });
     expect(prompt).toContain("ルールA");
