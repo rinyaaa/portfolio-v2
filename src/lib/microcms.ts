@@ -156,9 +156,12 @@ export function splitLines(raw: string | undefined): string[] {
 
 /** `rinya-persona` の生レスポンスを正規化する。 */
 export function toRinyaPersonaContent(raw: MicroCMSRinyaPersona): RinyaPersonaContent {
+  // 空白だけの入力は「未設定」と同じ扱いにする（コード側の既定文にフォールバックさせる）
+  const fallbackAnswer = raw.fallbackAnswer?.trim();
   return {
     toneRules: splitLines(raw.toneRules),
     privateFacts: splitLines(raw.privateFacts),
+    ...(fallbackAnswer ? { fallbackAnswer } : {}),
   };
 }
 

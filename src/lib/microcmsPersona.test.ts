@@ -42,6 +42,23 @@ describe("toRinyaPersonaContent", () => {
       privateFacts: [],
     });
   });
+
+  it("fallbackAnswer があれば前後の空白を落として載せる", () => {
+    expect(toRinyaPersonaContent({ toneRules: "ルールA", fallbackAnswer: "  断り文A  " })).toEqual({
+      toneRules: ["ルールA"],
+      privateFacts: [],
+      fallbackAnswer: "断り文A",
+    });
+  });
+
+  it("fallbackAnswer が未設定・空白だけならキー自体を載せない（コードの既定文に落とすため）", () => {
+    for (const raw of [undefined, "", "   "]) {
+      expect(toRinyaPersonaContent({ fallbackAnswer: raw })).toEqual({
+        toneRules: [],
+        privateFacts: [],
+      });
+    }
+  });
 });
 
 describe("toRinyaQaEntries", () => {

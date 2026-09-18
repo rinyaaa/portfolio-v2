@@ -3,6 +3,7 @@
 export type MicroCMSRinyaPersona = {
   toneRules?: string;
   privateFacts?: string;
+  fallbackAnswer?: string;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;
@@ -22,4 +23,7 @@ export type MicroCMSRinyaQa = {
 export type RinyaPersonaContent = {
   toneRules: string[];
   privateFacts: string[];
+  /** Workers AI を使えないときに返す定型文。本人の口調で書くため CMS 側に置く
+   *  （Public リポジトリに口調データを置かない。CLAUDE.md §4.4.1）。未設定なら `undefined`。 */
+  fallbackAnswer?: string;
 };

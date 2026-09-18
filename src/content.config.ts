@@ -20,6 +20,8 @@ const rinyaPersona = defineCollection({
   schema: z.object({
     toneRules: z.array(z.string()),
     privateFacts: z.array(z.string()),
+    // CMS 側で未設定なら無い。コードの既定文（`RINYA_FALLBACK_ANSWER`）が使われる。
+    fallbackAnswer: z.string().optional(),
   }),
   loader: async () => {
     const content = await getRinyaPersonaContent();

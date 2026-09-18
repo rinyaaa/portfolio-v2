@@ -47,7 +47,8 @@ async function loadPersona() {
   // 固定Q&Aのフォールバックも CMS 由来を優先し、無ければコードの既定値（現状は空）を使う
   const fallbackQa = qa.length > 0 ? qa.map((item) => item.data) : RINYA_QA;
 
-  return { persona, fallbackQa };
+  // 該当Q&Aが無いときの定型文。本人の口調で書くため CMS 側に置いてある（§4.4.1）
+  return { persona, fallbackQa, fallbackAnswer: entry?.data.fallbackAnswer };
 }
 
 function json(body: { answer: string; source: AnswerSource } | { error: string }, status: number): Response {
@@ -109,8 +110,9 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: validated.reason }, status);
   }
 
-  const { persona, fallbackQa } = await loadPersona();
-  const fallback = () => json({ answer: findRinyaAnswer(validated.question, fallbackQa), source: "fallback" }, 200);
+  const { persona, fallbackQa, fallbackAnswer } = await loadPersona();
+  const fallback = () =>
+    json({ answer: findRinyaAnswer(validated.question, fallbackQa, fallbackAnswer), source: "fallback" }, 200);
 
   const rateLimit = await checkRateLimit(request);
   if (rateLimit === "limited") {
